@@ -1,535 +1,402 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fractional AI Infrastructure CTO — Sankar Sathish</title>
-<meta name="description" content="AI infrastructure leadership — without the full-time hire. Fractional AI Infra CTO for Series A–C AI companies and enterprise teams.">
-<style>
-  /* ── RESET & BASE ── */
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --gold: #c9a84c;
-    --gold-light: #e8c97a;
-    --black: #0a0a0a;
-    --dark: #111111;
-    --dark2: #161616;
-    --text: #e8e6e0;
-    --text-muted: #888880;
-    --border: rgba(201,168,76,0.15);
-    --font-serif: 'Georgia', 'Times New Roman', serif;
-    --font-mono: 'Courier New', 'Courier', monospace;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hire Sankar — Fractional AI Infrastructure CTO | NYDUX</title>
+  <meta name="description" content="Most AI teams are losing $300K–$600K/year in GPU compute to silent misconfigurations. Sankar Panneer Selvam identifies exactly where — and fixes it. MFU 7%→40%, $480K savings delivered.">
+  <meta name="keywords" content="Fractional AI CTO, GPU cluster consultant, NCCL optimization, distributed training expert, AI infrastructure consultant, MFU optimization, NYDUX, Sankar Panneer Selvam">
+  <meta name="author" content="Sankar Panneer Selvam">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <link rel="canonical" href="https://hire.nydux.ai">
+  <meta property="og:type" content="profile">
+  <meta property="og:site_name" content="NYDUX">
+  <meta property="og:title" content="Most AI Teams Are Losing $300K–$600K/Year in GPU Compute | NYDUX">
+  <meta property="og:description" content="Sankar Panneer Selvam identifies exactly where your GPU cluster is wasting compute — and fixes it. MFU 7%→40%, $480K savings, 128 GPUs. $5K diagnostic.">
+  <meta property="og:url" content="https://hire.nydux.ai">
+  <meta property="og:image" content="https://nydux.ai/og-hire.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@nydux_ai">
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@graph":[
+      {"@type":"Person","name":"Sankar Panneer Selvam","jobTitle":"Fractional AI Infrastructure CTO","url":"https://hire.nydux.ai","email":"sankar@nydux.ai","worksFor":{"@type":"Organization","name":"NYDUX","url":"https://nydux.ai"},"sameAs":["https://www.linkedin.com/in/sankar-panneer-selvam-54820565","https://github.com/sankarbaseone"]},
+      {"@type":"Service","name":"GPU Cluster Diagnostic","provider":{"@type":"Person","name":"Sankar Panneer Selvam"},"description":"5-day GPU cluster diagnostic identifying $300K+ of wasted compute","offers":{"@type":"Offer","price":"5000","priceCurrency":"USD"},"url":"https://nydux.ai/diagnostic"}
+    ]
   }
-  html { scroll-behavior: smooth; }
-  body {
-    background: var(--black);
-    color: var(--text);
-    font-family: var(--font-mono);
-    font-size: 15px;
-    line-height: 1.7;
-    overflow-x: hidden;
-  }
-  /* Force all major elements to have solid background */
-  nav, section, footer { background: #0a0a0a; position: relative; z-index: 1; }
-  .cta-section { background: #111111 !important; }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ELWKF4SKC0"></script>
+  <script>
+    window.dataLayer=window.dataLayer||[];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js',new Date());
+    gtag('config','G-ELWKF4SKC0',{page_title:'Hire Sankar',page_location:'https://hire.nydux.ai'});
 
-  /* ── NAV ── */
-  nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 20px 48px;
-    border-bottom: 1px solid var(--border);
-    background: rgba(10,10,10,0.92);
-    backdrop-filter: blur(12px);
-  }
-  .nav-logo { font-size: 13px; letter-spacing: 0.04em; color: var(--text-muted); }
-  .nav-logo span { color: var(--text); }
-  .nav-cta {
-    display: inline-block;
-    padding: 9px 22px;
-    border: 1px solid var(--gold);
-    color: var(--gold);
-    font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    transition: background 0.2s, color 0.2s;
-  }
-  .nav-cta:hover { background: var(--gold); color: var(--black); }
+    function diagnostic_click(loc){
+      gtag('event','diagnostic_click',{event_category:'conversion',event_label:loc,value:5000});
+    }
 
-  /* ── HERO ── */
-  .hero {
-    min-height: 100vh;
-    display: flex; flex-direction: column; justify-content: center;
-    padding: 100px 48px 80px;
-    position: relative;
-    border-bottom: 1px solid var(--border);
-    background: #0a0a0a;
-  }
-  .hero-tag {
-    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 12px;
-  }
-  .hero-tag-sub {
-    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--text-muted); margin-bottom: 40px;
-  }
-  .hero h1 {
-    font-family: var(--font-serif);
-    font-size: clamp(48px, 7vw, 96px);
-    font-weight: 400;
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-    color: var(--text);
-    max-width: 900px;
-    margin-bottom: 32px;
-  }
-  .hero h1 em { color: var(--gold); font-style: italic; }
-  .hero-sub {
-    font-size: 15px; color: var(--text-muted); max-width: 560px; line-height: 1.8;
-    margin-bottom: 60px;
-  }
-  .hero-sub strong { color: var(--text); }
-  .metrics-row {
-    display: flex; gap: 64px; flex-wrap: wrap;
-    border-top: 1px solid var(--border); padding-top: 40px;
-  }
-  .metric { display: flex; flex-direction: column; gap: 4px; }
-  .metric-val {
-    font-family: var(--font-serif); font-size: 32px;
-    color: var(--gold); letter-spacing: -0.02em;
-  }
-  .metric-label { font-size: 11px; color: var(--text-muted); letter-spacing: 0.06em; }
+    // Scroll 75%
+    var s75=false;
+    window.addEventListener('scroll',function(){
+      if(!s75&&window.scrollY/(document.body.scrollHeight-window.innerHeight)>=0.75){
+        s75=true;
+        gtag('event','scroll_75',{event_category:'engagement',event_label:'hire_page'});
+      }
+    });
 
-  /* ── SECTION BASE ── */
-  .section {
-    padding: 100px 48px;
-    border-bottom: 1px solid var(--border);
-    background: var(--black);
-    opacity: 1 !important;
-    transform: none !important;
-  }
-  .section-inner { max-width: 900px; }
-  .section-num {
-    font-size: 11px; letter-spacing: 0.12em; color: var(--text-muted);
-    margin-bottom: 16px; opacity: 0.6;
-  }
-  .section-title {
-    font-family: var(--font-serif);
-    font-size: clamp(32px, 4vw, 52px);
-    font-weight: 400; line-height: 1.1;
-    margin-bottom: 40px; letter-spacing: -0.02em;
-  }
-  .section-title em { color: var(--gold); font-style: italic; }
+    // 60s engaged
+    setTimeout(function(){
+      gtag('event','engaged_60s',{event_category:'engagement',event_label:'hire_page'});
+    },60000);
+  </script>
+  <style>
+    :root{
+      --green:#00FF41;--green-faint:rgba(0,255,65,0.08);--green-border:rgba(0,255,65,0.2);
+      --bg:#030a03;--bg-card:#080f08;--bg-elevated:#0d160d;
+      --text:#e8f5e8;--text-dim:#7a9e7a;--text-muted:#4a6b4a;
+      --red:#ff4444;--amber:#ffaa00;--white:#ffffff;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:15px;line-height:1.75;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:9999;}
+    body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,65,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,65,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
 
-  /* ── PERSPECTIVE ── */
-  .perspective-text {
-    font-size: 17px; line-height: 1.9; color: var(--text-muted);
-    max-width: 680px;
-  }
-  .perspective-text p { margin-bottom: 20px; }
-  .perspective-text p:last-child { margin-bottom: 0; color: var(--text); }
+    /* PROGRESS */
+    #bar{position:fixed;top:0;left:0;height:2px;width:0%;background:var(--green);z-index:9998;box-shadow:0 0 8px var(--green);}
 
-  /* ── WHO THIS IS FOR ── */
-  .for-list { list-style: none; display: flex; flex-direction: column; gap: 0; }
-  .for-list li {
-    padding: 28px 0;
-    border-top: 1px solid var(--border);
-    font-size: 15px; color: var(--text-muted); line-height: 1.7;
-    padding-left: 24px; position: relative;
-  }
-  .for-list li::before {
-    content: '—'; position: absolute; left: 0; color: var(--gold);
-  }
-  .for-list li:last-child { border-bottom: 1px solid var(--border); }
+    /* NAV */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 40px;background:rgba(3,10,3,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--green-border);}
+    .logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+    .logo-mark{width:32px;height:32px;background:var(--green);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;color:var(--bg);font-size:18px;flex-shrink:0;}
+    .logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--white);}
+    .logo-sub{font-size:10px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;}
+    .nav-links{display:flex;gap:24px;list-style:none;align-items:center;}
+    .nav-links a{color:var(--text-dim);text-decoration:none;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;transition:color 0.2s;}
+    .nav-links a:hover,.nav-links a.active{color:var(--green);}
+    .nav-diag{background:var(--green)!important;color:var(--bg)!important;padding:8px 18px;font-weight:700!important;letter-spacing:0.08em!important;}
+    .nav-diag:hover{background:transparent!important;color:var(--green)!important;outline:1px solid var(--green);}
+    .nav-call{color:var(--green)!important;border:1px solid var(--green-border);padding:7px 16px;}
+    .nav-call:hover{border-color:var(--green);background:var(--green-faint);}
 
-  /* ── LEVERAGE ── */
-  .leverage-grid { display: flex; flex-direction: column; gap: 0; }
-  .leverage-item {
-    padding: 40px 0;
-    border-top: 1px solid var(--border);
-    display: grid; grid-template-columns: 48px 1fr; gap: 24px;
-  }
-  .leverage-item:last-child { border-bottom: 1px solid var(--border); }
-  .leverage-num { font-size: 11px; color: var(--gold); letter-spacing: 0.1em; padding-top: 4px; }
-  .leverage-content h3 {
-    font-family: var(--font-serif); font-size: 22px; font-weight: 400;
-    margin-bottom: 12px; color: var(--text);
-  }
-  .leverage-content p { font-size: 14px; color: var(--text-muted); line-height: 1.8; margin-bottom: 16px; }
-  .tags { display: flex; gap: 8px; flex-wrap: wrap; }
-  .tag {
-    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
-    padding: 4px 10px; border: 1px solid var(--border);
-    color: var(--text-muted);
-  }
+    /* LAYOUT */
+    main{position:relative;z-index:1;}
+    .container{max-width:960px;margin:0 auto;padding:0 40px;}
 
-  /* ── ENGAGEMENT ── */
-  .engagement-intro {
-    font-size: 15px; color: var(--text-muted); margin-bottom: 48px; line-height: 1.8;
-  }
-  .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  @media (max-width: 700px) { .pricing-grid { grid-template-columns: 1fr; } }
-  .pricing-card {
-    border: 1px solid var(--border);
-    padding: 40px 36px;
-    background: var(--dark2);
-  }
-  .pricing-card.featured { border-color: var(--gold); }
-  .pricing-type { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
-  .pricing-name {
-    font-family: var(--font-serif); font-size: 24px; font-weight: 400;
-    margin-bottom: 24px; color: var(--text);
-  }
-  .pricing-price {
-    font-family: var(--font-serif); font-size: 36px; color: var(--gold);
-    margin-bottom: 4px; letter-spacing: -0.02em;
-  }
-  .pricing-cadence { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
-  .pricing-limit {
-    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 28px;
-    border: 1px solid rgba(201,168,76,0.3); display: inline-block;
-    padding: 4px 10px;
-  }
-  .pricing-features { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-  .pricing-features li {
-    font-size: 13px; color: var(--text-muted); padding-left: 16px; position: relative;
-  }
-  .pricing-features li::before { content: '·'; position: absolute; left: 0; color: var(--gold); }
+    /* HERO */
+    .hero{padding:140px 0 80px;border-bottom:1px solid var(--green-border);}
+    .hero-label{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:20px;}
+    .hero-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(36px,5.5vw,58px);line-height:1.05;color:var(--white);margin-bottom:24px;letter-spacing:-0.02em;}
+    .hero-title .loss{color:var(--red);}
+    .hero-sub{font-size:17px;color:var(--text-dim);line-height:1.7;max-width:620px;margin-bottom:40px;}
+    .hero-sub strong{color:var(--text);}
+    .hero-cta-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;letter-spacing:0.05em;cursor:pointer;transition:all 0.2s;text-decoration:none;white-space:nowrap;}
+    .btn-primary{background:var(--green);color:var(--bg);border:2px solid var(--green);}
+    .btn-primary:hover{background:transparent;color:var(--green);}
+    .btn-ghost{background:transparent;color:var(--text-dim);border:1px solid var(--green-border);padding:13px 24px;font-weight:400;}
+    .btn-ghost:hover{border-color:var(--green);color:var(--green);}
+    .hero-note{font-size:12px;color:var(--text-muted);margin-top:12px;}
 
-  /* ── DELIVERED ── */
-  .delivered-grid { display: flex; flex-direction: column; gap: 0; }
-  .delivered-item {
-    padding: 40px 0;
-    border-top: 1px solid var(--border);
-    display: grid; grid-template-columns: 200px 1fr; gap: 40px;
-  }
-  .delivered-item:last-child { border-bottom: 1px solid var(--border); }
-  @media (max-width: 700px) { .delivered-item { grid-template-columns: 1fr; gap: 16px; } }
-  .delivered-client { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
-  .delivered-client strong { color: var(--text); display: block; margin-bottom: 4px; }
-  .delivered-text { font-size: 14px; color: var(--text-muted); line-height: 1.9; }
-  .delivered-text strong { color: var(--text); }
+    /* TRUST STRIP */
+    .trust-strip{background:var(--bg-elevated);border-top:1px solid var(--green-border);border-bottom:1px solid var(--green-border);padding:24px 0;}
+    .trust-strip-inner{display:flex;gap:0;justify-content:space-between;align-items:center;}
+    .trust-item{text-align:center;padding:0 24px;border-right:1px solid var(--green-border);}
+    .trust-item:last-child{border-right:none;}
+    .trust-num{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--green);line-height:1;}
+    .trust-label{font-size:11px;color:var(--text-muted);margin-top:4px;letter-spacing:0.05em;}
 
-  /* ── EXPERIENCE ── */
-  .experience-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; }
-  @media (max-width: 700px) { .experience-grid { grid-template-columns: 1fr; gap: 40px; } }
-  .exp-col h3 {
-    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 20px;
-  }
-  .exp-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-  .exp-list li {
-    font-size: 13px; color: var(--text-muted); padding-left: 16px; position: relative; line-height: 1.6;
-  }
-  .exp-list li::before { content: '—'; position: absolute; left: 0; color: var(--border); }
+    /* SECTION */
+    .section{padding:72px 0;border-bottom:1px solid var(--green-border);}
+    .section-eyebrow{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:16px;}
+    .section-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(26px,3.5vw,36px);color:var(--white);line-height:1.2;margin-bottom:16px;letter-spacing:-0.01em;}
+    .section-sub{font-size:15px;color:var(--text-dim);max-width:580px;line-height:1.7;margin-bottom:40px;}
 
-  /* ── CTA SECTION ── */
-  .cta-section {
-    padding: 120px 48px;
-    text-align: center;
-    background: var(--dark2);
-  }
-  .cta-section h2 {
-    font-family: var(--font-serif);
-    font-size: clamp(36px, 5vw, 64px);
-    font-weight: 400; line-height: 1.1;
-    margin-bottom: 20px; letter-spacing: -0.02em;
-  }
-  .cta-section h2 em { color: var(--gold); font-style: italic; }
-  .cta-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 48px; }
-  .cta-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px; }
-  .btn-primary {
-    display: inline-block; padding: 16px 36px;
-    background: var(--gold); color: var(--black);
-    font-family: var(--font-mono); font-size: 12px;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    transition: background 0.2s;
-  }
-  .btn-primary:hover { background: var(--gold-light); }
-  .btn-outline {
-    display: inline-block; padding: 16px 36px;
-    border: 1px solid var(--border); color: var(--text-muted);
-    font-family: var(--font-mono); font-size: 12px;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    transition: border-color 0.2s, color 0.2s;
-  }
-  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
-  .cta-email-direct {
-    font-size: 11px; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase;
-  }
-  .cta-email-direct a { color: var(--gold); border-bottom: 1px solid rgba(201,168,76,0.3); }
-  .cta-email-direct a:hover { border-color: var(--gold); }
+    /* WHAT I DO */
+    .do-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+    .do-card{background:var(--bg-card);border:1px solid var(--green-border);padding:28px;position:relative;overflow:hidden;}
+    .do-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--green);}
+    .do-card-icon{font-size:22px;margin-bottom:12px;}
+    .do-card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;color:var(--white);margin-bottom:8px;}
+    .do-card-desc{font-size:13px;color:var(--text-dim);line-height:1.65;}
+    .do-card-metric{display:inline-block;margin-top:12px;font-size:12px;color:var(--green);border:1px solid var(--green-border);padding:3px 10px;}
 
-  /* ── FOOTER ── */
-  footer {
-    padding: 32px 48px;
-    border-top: 1px solid var(--border);
-    display: flex; justify-content: space-between; align-items: center;
-    flex-wrap: wrap; gap: 16px;
-  }
-  .footer-name { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
-  .footer-note { font-size: 11px; color: var(--text-muted); opacity: 0.5; }
+    /* ICP */
+    .icp-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+    .icp-card{background:var(--bg-card);border:1px solid var(--green-border);padding:28px;}
+    .icp-card.yes{border-color:rgba(0,255,65,0.4);}
+    .icp-card.no{border-color:rgba(255,68,68,0.3);}
+    .icp-label{font-size:11px;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+    .icp-label.yes{color:var(--green);}
+    .icp-label.no{color:var(--red);}
+    .icp-list{list-style:none;}
+    .icp-list li{font-size:13px;color:var(--text-dim);margin-bottom:10px;display:flex;align-items:flex-start;gap:10px;line-height:1.5;}
+    .icp-list.yes li::before{content:'✓';color:var(--green);flex-shrink:0;font-weight:700;}
+    .icp-list.no li::before{content:'✗';color:var(--red);flex-shrink:0;font-weight:700;}
 
-  /* ── RESPONSIVE ── */
-  @media (max-width: 768px) {
-    nav { padding: 16px 24px; }
-    .hero { padding: 0 24px 60px; }
-    .section { padding: 72px 24px; }
-    .metrics-row { gap: 36px; }
-    footer { padding: 24px; }
-    .cta-section { padding: 80px 24px; }
-  }
-</style>
+    /* PROOF */
+    .proof-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;}
+    .proof-card{background:var(--bg-card);border:1px solid var(--green-border);padding:24px;text-decoration:none;display:block;transition:border-color 0.2s,background 0.2s;}
+    .proof-card:hover{border-color:var(--green);background:var(--green-faint);}
+    .proof-card-type{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--green);margin-bottom:10px;}
+    .proof-card-stat{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--white);line-height:1;margin-bottom:8px;}
+    .proof-card-stat span{color:var(--green);}
+    .proof-card-desc{font-size:12px;color:var(--text-muted);line-height:1.5;margin-bottom:12px;}
+    .proof-card-link{font-size:11px;color:var(--green);}
+
+    /* CALLOUT */
+    .callout{background:rgba(255,68,68,0.06);border:1px solid rgba(255,68,68,0.25);border-left:3px solid var(--red);padding:20px 24px;margin:32px 0;}
+    .callout-label{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--red);margin-bottom:8px;}
+    .callout p{font-size:14px;color:var(--text-dim);margin:0;}
+    .callout strong{color:var(--text);}
+
+    /* FINAL CTA */
+    .final-cta{padding:80px 0;}
+    .final-cta-inner{background:linear-gradient(135deg,var(--bg-card) 0%,rgba(0,255,65,0.05) 100%);border:1px solid var(--green-border);padding:60px;text-align:center;position:relative;overflow:hidden;}
+    .final-cta-inner::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent);}
+    .final-cta-inner::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green-border),transparent);}
+    .final-cta h2{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(24px,4vw,38px);color:var(--white);margin-bottom:16px;line-height:1.2;}
+    .final-cta h2 span{color:var(--red);}
+    .final-cta p{color:var(--text-dim);font-size:16px;margin-bottom:32px;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.7;}
+    .final-cta-price{font-size:13px;color:var(--text-muted);margin-top:20px;}
+    .final-cta-price strong{color:var(--green);}
+    .trust-row{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-top:24px;}
+    .trust-item-sm{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:5px;}
+    .trust-item-sm::before{content:'✓';color:var(--green);}
+
+    /* FOOTER */
+    footer{position:relative;z-index:1;border-top:1px solid var(--green-border);padding:48px 40px 32px;}
+    .footer-inner{max-width:960px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;}
+    .footer-mark{width:36px;height:36px;background:var(--green);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;color:var(--bg);font-size:20px;margin-bottom:12px;}
+    .footer-name{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--white);margin-bottom:6px;}
+    .footer-tag{font-size:12px;color:var(--text-muted);line-height:1.6;max-width:220px;}
+    .footer-col-title{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--green);margin-bottom:16px;}
+    .footer-col ul{list-style:none;}
+    .footer-col li{margin-bottom:10px;}
+    .footer-col a{color:var(--text-muted);text-decoration:none;font-size:13px;transition:color 0.2s;}
+    .footer-col a:hover{color:var(--green);}
+    .footer-bottom{max-width:960px;margin:32px auto 0;padding-top:24px;border-top:1px solid var(--green-border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--text-muted);}
+
+    @media(max-width:900px){.do-grid,.icp-grid,.proof-grid{grid-template-columns:1fr 1fr;}.trust-strip-inner{flex-wrap:wrap;gap:16px;}.footer-inner{grid-template-columns:1fr 1fr;}}
+    @media(max-width:600px){nav{padding:14px 20px;}.nav-links{display:none;}.container{padding:0 20px;}.hero{padding:110px 0 60px;}.do-grid,.icp-grid,.proof-grid{grid-template-columns:1fr;}.final-cta-inner{padding:40px 24px;}.footer-inner{grid-template-columns:1fr;}.trust-strip-inner{justify-content:flex-start;}}
+  </style>
 </head>
 <body>
+<div id="bar"></div>
 
-<!-- NAV -->
 <nav>
-  <div class="nav-logo"><span>Sankar Sathish</span> · Fractional AI Infra CTO</div>
-  <a href="https://cal.com/sankarsathish/20-min-ai-infrastructure-intro" class="nav-cta" target="_blank" rel="noopener">Book a call</a>
+  <a href="https://nydux.ai" class="logo">
+    <div class="logo-mark">N</div>
+    <div><div class="logo-text">NYDUX</div><div class="logo-sub">AI Infra Intelligence</div></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="https://nydux.ai">Home</a></li>
+    <li><a href="https://learn.nydux.ai">Intelligence Hub</a></li>
+    <li><a href="https://nydux.ai/diagnostic" class="nav-diag" onclick="diagnostic_click('nav')">Diagnostic</a></li>
+    <li><a href="https://hire.nydux.ai" class="active">Hire</a></li>
+    <li><a href="https://cal.com/sankarsathish/20-min-ai-infrastructure-intro" class="nav-call" target="_blank" rel="noopener">Book Call</a></li>
+  </ul>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-tag">Fractional engagement · AI infrastructure</div>
-  <div class="hero-tag-sub">SELECT CLIENT ENVIRONMENTS · ENTERPRISE AI · SOVEREIGN INFRASTRUCTURE</div>
-  <h1>I intervene at the systems layer —<br><em>where GPU spend compounds without explanation.</em></h1>
-  <p class="hero-sub">
-    Most AI infrastructure problems are diagnosed at the wrong layer. Teams tune hyperparameters when the problem is in NCCL. They buy GPUs when the problem is in the AllReduce topology. <strong>I profile first, always.</strong> I work with Series A–C AI companies and enterprise AI teams — 20 hours/month, systems-layer depth, production results. No overhead, no equity, no 6-month ramp-up.
-  </p>
-  <p style="font-size:15px;color:var(--text);margin-bottom:0;padding-top:8px;border-top:1px solid var(--border);margin-top:8px">Every 10% drop in GPU utilization is <strong style="color:var(--gold)">six figures in wasted compute.</strong> Most teams don't know where their utilization is leaking — or that it's measurable at all.</p>
-  <div class="metrics-row">
-    <div class="metric">
-      <span class="metric-val">4.2→0.8ms</span>
-      <span class="metric-label">AllReduce latency (production)</span>
-    </div>
-    <div class="metric">
-      <span class="metric-val">87%</span>
-      <span class="metric-label">GPU utilization (after optimization)</span>
-    </div>
-    <div class="metric">
-      <span class="metric-val">$480K</span>
-      <span class="metric-label">Annual savings (single cluster)</span>
-    </div>
-  </div>
-</section>
-
-<!-- 00 PERSPECTIVE -->
-<section class="section">
-  <div class="section-inner">
-    <div class="section-num">00</div>
-    <h2 class="section-title">My <em>perspective</em></h2>
-    <div class="perspective-text">
-      <p>Most AI teams don't have a GPU problem. They have a coordination problem between compute, memory, and communication.</p>
-      <p>Until you measure those layers precisely — with Nsight Systems, nccl-tests, and kernel-level profiling — adding more GPUs only increases cost, not performance. The ceiling isn't hardware. It's visibility.</p>
-      <p>This is why I profile before I recommend. Every engagement starts with measurement, not assumptions.</p>
-    </div>
-  </div>
-</section>
-
-<!-- 01 WHO THIS IS FOR -->
-<section class="section">
-  <div class="section-inner">
-    <div class="section-num">01</div>
-    <h2 class="section-title">Who this is <em>for</em></h2>
-    <p style="color:var(--text-muted);margin-bottom:32px;font-size:15px;">This is not for teams that want a roadmap deck. It's for teams with a production cluster, a growing compute bill, and the technical honesty to admit they need a specialist.</p>
-    <ul class="for-list">
-      <li>Series A–C AI companies scaling training workloads past the point where framework-level tuning helps</li>
-      <li>Enterprise AI teams hitting systems-layer bottlenecks their internal engineers were not hired to solve</li>
-      <li>Sovereign AI programs building on-premise GPU clusters where governance, auditability, and cost control are non-negotiable</li>
-    </ul>
-  </div>
-</section>
-
-<!-- 02 LEVERAGE -->
-<section class="section">
-  <div class="section-inner">
-    <div class="section-num">02</div>
-    <h2 class="section-title">Where I create <em>leverage</em></h2>
-    <div class="leverage-grid">
-      <div class="leverage-item">
-        <div class="leverage-num">01</div>
-        <div class="leverage-content">
-          <h3>Diagnose where your GPU spend is being wasted</h3>
-          <p>Full profiling of your training and inference stack — Nsight Systems, Nsight Compute, nccl-tests. I find the bottleneck, fix it, and document it so your team can maintain it. Typical result: 20–40% throughput improvement in the first engagement.</p>
-          <div class="tags">
-            <span class="tag">Nsight Systems</span>
-            <span class="tag">NCCL tuning</span>
-            <span class="tag">GPUDirect RDMA</span>
-            <span class="tag">A100/H100</span>
-          </div>
-        </div>
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-label">// Fractional AI Infrastructure CTO</div>
+      <h1 class="hero-title">Most AI teams are losing<br><span class="loss">$300K–$600K/year</span><br>in GPU compute.</h1>
+      <p class="hero-sub">Not from hardware failures. From <strong>silent misconfigurations</strong> — NCCL buffer misalignment, MTU boundary fragmentation, disabled in-network compute, and parallelism strategies that destroy scaling efficiency. These don't trigger alerts. They just make training slow and expensive.</p>
+      <div class="hero-cta-row">
+        <a href="https://nydux.ai/diagnostic" class="btn btn-primary" onclick="diagnostic_click('hero_primary')">→ Run a $5K Diagnostic</a>
+        <a href="https://cal.com/sankarsathish/20-min-ai-infrastructure-intro" class="btn btn-ghost" target="_blank" rel="noopener">Free 20-min call first</a>
       </div>
-      <div class="leverage-item">
-        <div class="leverage-num">02</div>
-        <div class="leverage-content">
-          <h3>Architect distributed training that scales without waste</h3>
-          <p>FSDP vs ZeRO-3 trade-offs, tensor/pipeline/sequence parallelism selection, communication overlap strategy. I've scaled 13B-parameter LLM fine-tuning from 7 days to 18 hours. I'll do the same for your workload.</p>
-          <div class="tags">
-            <span class="tag">FSDP</span>
-            <span class="tag">ZeRO-3</span>
-            <span class="tag">Megatron-LM</span>
-            <span class="tag">DeepSpeed</span>
-          </div>
-        </div>
-      </div>
-      <div class="leverage-item">
-        <div class="leverage-num">03</div>
-        <div class="leverage-content">
-          <h3>Build inference systems that meet SLA and hold at scale</h3>
-          <p>TensorRT-LLM, Triton Inference Server, PagedAttention, speculative decoding. I've deployed production inference at 95ms P50, 99.97% uptime. I'll design and validate your serving stack.</p>
-          <div class="tags">
-            <span class="tag">TensorRT-LLM</span>
-            <span class="tag">Triton</span>
-            <span class="tag">PagedAttention</span>
-            <span class="tag">vLLM</span>
-          </div>
-        </div>
-      </div>
-      <div class="leverage-item">
-        <div class="leverage-num">04</div>
-        <div class="leverage-content">
-          <h3>Govern GPU spend before it compounds into a structural problem</h3>
-          <p>Adaptive spot/reserved scheduling, mixed precision strategy, cluster cost modeling. Based on a filed utility patent — I've delivered $480K–$600K annual savings on a single cluster. I'll build the same framework for yours.</p>
-          <div class="tags">
-            <span class="tag">Cost modeling</span>
-            <span class="tag">BF16/FP8</span>
-            <span class="tag">Slurm</span>
-            <span class="tag">Spot scheduling</span>
-          </div>
-        </div>
+      <p class="hero-note">Fixed price. 5-day delivery. Identifies $300K+ of wasted GPU capacity or I'll tell you why not.</p>
+    </div>
+  </section>
+
+  <!-- TRUST STRIP -->
+  <div class="trust-strip">
+    <div class="container">
+      <div class="trust-strip-inner">
+        <div class="trust-item"><div class="trust-num">7%→40%</div><div class="trust-label">MFU on 128-GPU A100</div></div>
+        <div class="trust-item"><div class="trust-num">$480K</div><div class="trust-label">Annual savings, single cluster</div></div>
+        <div class="trust-item"><div class="trust-num">4.2→0.8ms</div><div class="trust-label">AllReduce latency, 16 nodes</div></div>
+        <div class="trust-item"><div class="trust-num">7d→18h</div><div class="trust-label">Training time, 1.3B GPT-style</div></div>
+        <div class="trust-item"><div class="trust-num">14 yrs</div><div class="trust-label">Enterprise distributed systems</div></div>
       </div>
     </div>
   </div>
-</section>
 
-<!-- 03 ENGAGEMENT -->
-<section class="section">
-  <div class="section-inner">
-    <div class="section-num">03</div>
-    <h2 class="section-title">How the <em>engagement</em> works</h2>
-    <p class="engagement-intro">Typical clients recover $200K–$600K/year in GPU efficiency gains. The engagement pays for itself within 30 days.</p>
-    <div class="pricing-grid">
-      <div class="pricing-card featured">
-        <div class="pricing-type">Monthly retainer</div>
-        <div class="pricing-name">Dedicated advisor</div>
-        <div class="pricing-price">$5K–$8K</div>
-        <div class="pricing-cadence">per month · 20 hours</div>
-        <div class="pricing-limit">LIMITED TO 3 ACTIVE CLIENTS</div>
-        <ul class="pricing-features">
-          <li>Weekly 1-hour strategy call</li>
-          <li>Async Slack/email support</li>
-          <li>Code review &amp; architecture decisions</li>
-          <li>Monthly performance report</li>
-          <li>Profiling sessions as needed</li>
-          <li>3-month minimum engagement</li>
-        </ul>
-      </div>
-      <div class="pricing-card">
-        <div class="pricing-type">Project engagement</div>
-        <div class="pricing-name">Deep-dive sprint</div>
-        <div class="pricing-price">$8K–$15K</div>
-        <div class="pricing-cadence">per project · 4–6 weeks</div>
-        <br>
-        <ul class="pricing-features">
-          <li>Full cluster performance audit</li>
-          <li>Root-cause profiling + fixes</li>
-          <li>Architecture recommendation doc</li>
-          <li>Team knowledge transfer session</li>
-          <li>30-day follow-up support</li>
-          <li>Deliverables-based, fixed scope</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- 04 DELIVERED -->
-<section class="section">
-  <div class="section-inner">
-    <div class="section-num">04</div>
-    <h2 class="section-title">What I've <em>delivered</em></h2>
-    <div class="delivered-grid">
-      <div class="delivered-item">
-        <div class="delivered-client">
-          <strong>Capgemini</strong>
-          2025
+  <!-- WHAT I DO -->
+  <section class="section">
+    <div class="container">
+      <div class="section-eyebrow">// What I Do</div>
+      <h2 class="section-title">Surgical infrastructure diagnosis.<br>Not generic consulting.</h2>
+      <p class="section-sub">I go into the cluster, run real benchmarks, and find exactly which layer is destroying your compute efficiency. Most engagements find the primary waste source within 48 hours.</p>
+      <div class="do-grid">
+        <div class="do-card">
+          <div class="do-card-icon">⚡</div>
+          <div class="do-card-title">Compute Layer</div>
+          <p class="do-card-desc">MFU measurement, kernel utilization, wave quantization effects, XLA/CUDA compilation overhead. Most clusters run at 15–35% MFU. The theoretical ceiling is 65%+.</p>
+          <span class="do-card-metric">Benchmark: MFU 7% → 40%</span>
         </div>
-        <div class="delivered-text">
-          Architected 16-node A100 cluster for 13B-parameter LLM fine-tuning. Reduced AllReduce latency <strong>4.2ms → 0.8ms</strong>. Training time <strong>7 days → 18 hours</strong>. GPU utilization <strong>61% → 87%</strong>. Delivered <strong>$480K–$600K annual savings</strong>. Filed utility patent on adaptive GPU cost optimization.
+        <div class="do-card">
+          <div class="do-card-icon">🔗</div>
+          <div class="do-card-title">Communication Layer (NCCL)</div>
+          <p class="do-card-desc">AllReduce algorithm selection, buffer size alignment to MTU, SHARP enablement, ring vs tree topology, InfiniBand vs RoCE tuning. One misconfiguration = 30% step time overhead.</p>
+          <span class="do-card-metric">4.2ms → 0.8ms AllReduce</span>
         </div>
-      </div>
-      <div class="delivered-item">
-        <div class="delivered-client">
-          <strong>Ericsson</strong>
-          2018–2025
+        <div class="do-card">
+          <div class="do-card-icon">🧠</div>
+          <div class="do-card-title">Memory &amp; I/O Layer</div>
+          <p class="do-card-desc">Activation checkpointing overhead, gradient accumulation strategy, KV cache fragmentation, input pipeline stall time. Memory inefficiency silently adds 10–25% to step time.</p>
+          <span class="do-card-metric">Step-time breakdown per layer</span>
         </div>
-        <div class="delivered-text">
-          Pioneered enterprise LLM adoption on multi-node GPU clusters using PyTorch FSDP + MPI/UCX. Built GPU optimization framework with NVIDIA Triton — <strong>$150K annual cost savings</strong>. Reduced POC-to-production from 4 months to 6 weeks. Enabled <strong>10+ concurrent AI projects</strong>.
-        </div>
-      </div>
-      <div class="delivered-item">
-        <div class="delivered-client">
-          <strong>Inference</strong>
-          Production
-        </div>
-        <div class="delivered-text">
-          Deployed NVIDIA Triton Inference Server + TensorRT-LLM with INT8 quantization, PagedAttention, CUDA Graphs, dynamic batching. Result: <strong>95ms P50 latency</strong> (47% improvement), 65+ req/sec, <strong>99.97% uptime</strong> at scale.
+        <div class="do-card">
+          <div class="do-card-icon">📐</div>
+          <div class="do-card-title">Scaling &amp; Parallelism</div>
+          <p class="do-card-desc">DP vs TP vs PP trade-offs for your model size, what breaks going from 8→128→1024 GPUs, gradient synchronization overhead at scale, near-linear scaling diagnosis.</p>
+          <span class="do-card-metric">Scaling efficiency formula</span>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- 05 EXPERIENCE -->
-<section class="section">
-  <div class="section-inner">
-    <div class="section-num">05</div>
-    <h2 class="section-title">Selected <em>experience</em></h2>
-    <div class="experience-grid">
-      <div class="exp-col">
-        <h3>Technical depth</h3>
-        <ul class="exp-list">
-          <li>14 years in distributed systems, 7 years GPU cluster engineering</li>
-          <li>Utility patent — adaptive GPU cost optimization for LLM training</li>
-          <li>3 technical publications on distributed training &amp; NCCL tuning</li>
-          <li>NVIDIA DLI certified — Accelerated Computing with CUDA</li>
-          <li>M.Tech Computer Science, Dr. MGR Educational Institute</li>
-        </ul>
+  <!-- WHO THIS IS FOR -->
+  <section class="section">
+    <div class="container">
+      <div class="section-eyebrow">// Who This Is For</div>
+      <h2 class="section-title">This is not for everyone.<br>It's built for teams with real clusters.</h2>
+      <div class="icp-grid">
+        <div class="icp-card yes">
+          <div class="icp-label yes">✓ Right fit</div>
+          <ul class="icp-list yes">
+            <li>Running 8–1024+ GPU clusters for LLM training or fine-tuning</li>
+            <li>Training time feels longer than it should — but no clear root cause</li>
+            <li>GPU utilization metrics look "fine" but costs are climbing</li>
+            <li>Scaling from 8→128 GPUs and efficiency is dropping</li>
+            <li>NCCL is configured but never been benchmarked</li>
+            <li>CTO or AI infra lead who needs data, not theory</li>
+            <li>Gulf, US, or UK team with serious compute budget ($25K+/month)</li>
+          </ul>
+        </div>
+        <div class="icp-card no">
+          <div class="icp-label no">✗ Not a fit</div>
+          <ul class="icp-list no">
+            <li>Fewer than 8 GPUs — diagnostic ROI won't justify the cost</li>
+            <li>Running pure inference only (no training workloads)</li>
+            <li>Looking for general ML consulting or model architecture advice</li>
+            <li>Need help with MLOps pipelines, CI/CD, or data engineering</li>
+            <li>Early-stage with no production training runs yet</li>
+            <li>Expecting a presentation deck, not a working benchmark report</li>
+          </ul>
+        </div>
       </div>
-      <div class="exp-col">
-        <h3>Production experience</h3>
-        <ul class="exp-list">
-          <li>A100/H100 clusters — InfiniBand NDR 400Gbps, NVLink/NVSwitch</li>
-          <li>Air-gapped sovereign AI environments (on-premise HPC)</li>
-          <li>25+ engineers mentored at Capgemini &amp; Ericsson</li>
-          <li>$2M+ new project revenue from AI infrastructure work</li>
-          <li>Also founder of NYDUX — AI governance control plane</li>
-        </ul>
+
+      <div class="callout" style="margin-top:32px;">
+        <div class="callout-label">Reality check</div>
+        <p>If your cluster runs at <strong>below 40% MFU</strong>, you are already losing money on every training step. The industry average for untuned clusters is <strong>15–35% MFU</strong>. You likely qualify.</p>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- CTA -->
-<section class="cta-section">
-  <p style="font-size:13px;letter-spacing:.06em;color:var(--text-muted);margin-bottom:20px;font-style:italic">Most teams wait until costs force the decision. By then, they've already paid for the inefficiency.</p>
-  <h2>If your GPU spend is scaling <em>faster than performance,</em> we should talk.</h2>
-  <p class="cta-sub">One 20-minute conversation to see if there's a fit. No commitment.</p>
-  <div class="cta-buttons">
-    <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#115;&#97;&#110;&#107;&#97;&#114;&#64;&#110;&#121;&#100;&#117;&#120;&#46;&#97;&#105;" class="btn-primary">Email sankar&#64;nydux.ai</a>
-    <a href="https://linkedin.com/in/sankar-panneer-selvam-54820565" class="btn-outline" target="_blank" rel="noopener">Connect on LinkedIn</a>
-  </div>
-  <!-- ✅ FIX: Direct email link now uses mailto: -->
-  <div class="cta-email-direct">
-    OR BOOK DIRECTLY · <a href="https://cal.com/sankarsathish/20-min-ai-infrastructure-intro" target="_blank" rel="noopener">cal.com/sankarsathish</a>
-  </div>
-</section>
+  <!-- PROOF -->
+  <section class="section">
+    <div class="container">
+      <div class="section-eyebrow">// Proof — Real Clusters, Real Numbers</div>
+      <h2 class="section-title">Not case studies from documentation.<br>From production clusters.</h2>
+      <div class="proof-grid">
+        <a href="https://learn.nydux.ai/mfu-case-study" class="proof-card" onclick="gtag('event','proof_click',{event_label:'mfu'})">
+          <div class="proof-card-type">Case Study</div>
+          <div class="proof-card-stat"><span>7%</span> → 40%</div>
+          <p class="proof-card-desc">128-GPU A100 cluster. Three NCCL changes. $480K annual savings. Zero new hardware purchased.</p>
+          <div class="proof-card-link">Read full case study →</div>
+        </a>
+        <a href="https://learn.nydux.ai/allreduce" class="proof-card" onclick="gtag('event','proof_click',{event_label:'allreduce'})">
+          <div class="proof-card-type">Deep Dive</div>
+          <div class="proof-card-stat"><span>4.2ms</span> → 0.8ms</div>
+          <p class="proof-card-desc">16-node A100 cluster. Ring algorithm on fat-tree, buffer misalignment, SHARP disabled. One afternoon to fix.</p>
+          <div class="proof-card-link">Read AllReduce deep dive →</div>
+        </a>
+        <a href="https://learn.nydux.ai/gcp-benchmark-mtu-cliff" class="proof-card" onclick="gtag('event','proof_click',{event_label:'benchmark'})">
+          <div class="proof-card-type">Benchmark</div>
+          <div class="proof-card-stat"><span>7×</span> latency jump</div>
+          <p class="proof-card-desc">Real GCP multi-node benchmarks. MTU cliff at 64KB — 21μs → 158μs. The default state of most clusters.</p>
+          <div class="proof-card-link">See the benchmark data →</div>
+        </a>
+      </div>
+    </div>
+  </section>
 
-<!-- FOOTER -->
+  <!-- FINAL CTA -->
+  <section class="final-cta">
+    <div class="container">
+      <div class="final-cta-inner">
+        <h2>If your cluster is below <span>40% MFU</span>,<br>you're already losing money.</h2>
+        <p>A $5K diagnostic pays for itself the moment we find the first configuration fix — which typically happens within 48 hours of starting. The question isn't whether you have inefficiency. It's how much.</p>
+        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+          <a href="https://nydux.ai/diagnostic" class="btn btn-primary" onclick="diagnostic_click('final_cta')">→ Run a $5K Diagnostic</a>
+          <a href="https://cal.com/sankarsathish/20-min-ai-infrastructure-intro" class="btn btn-ghost" target="_blank" rel="noopener">Talk first — free 20 min</a>
+        </div>
+        <p class="final-cta-price">Fixed price: <strong>$5,000</strong> · 5-day delivery · Written report + walkthrough call</p>
+        <div class="trust-row">
+          <span class="trust-item-sm">No retainer required</span>
+          <span class="trust-item-sm">Real benchmark data</span>
+          <span class="trust-item-sm">Gulf · US · UK</span>
+          <span class="trust-item-sm">Response in 24h</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
 <footer>
-  <div class="footer-name">
-    Sankar Sathish Panneer Selvam · AI HPC Infrastructure Architect · nydux.ai<br>
-    <span style="opacity:0.5;font-size:11px;">Independent advisor
+  <div class="footer-inner">
+    <div>
+      <div class="footer-mark">N</div>
+      <div class="footer-name">NYDUX</div>
+      <p class="footer-tag">AI Infrastructure Intelligence. Most AI teams have a systems problem, not a hardware problem.</p>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Pages</div>
+      <ul>
+        <li><a href="https://nydux.ai">Home</a></li>
+        <li><a href="https://learn.nydux.ai">Intelligence Hub</a></li>
+        <li><a href="https://nydux.ai/diagnostic">Diagnostic</a></li>
+        <li><a href="https://hire.nydux.ai">Hire</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Articles</div>
+      <ul>
+        <li><a href="https://learn.nydux.ai/gcp-benchmark-mtu-cliff">GCP Benchmark</a></li>
+        <li><a href="https://learn.nydux.ai/mfu-case-study">MFU Case Study</a></li>
+        <li><a href="https://learn.nydux.ai/allreduce">AllReduce Deep Dive</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Connect</div>
+      <ul>
+        <li><a href="https://www.linkedin.com/in/sankar-panneer-selvam-54820565" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="https://github.com/sankarbaseone" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="https://x.com/nydux_ai" target="_blank" rel="noopener">X / Twitter</a></li>
+        <li><a href="mailto:sankar@nydux.ai">sankar@nydux.ai</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 NYDUX Pvt Ltd · CIN: U63999TN2026PTC188887</span>
+    <span>sankar@nydux.ai · Chennai, Tamil Nadu, India</span>
+  </div>
+</footer>
+
+<script>
+  var b=document.getElementById('bar');
+  window.addEventListener('scroll',function(){b.style.width=Math.min(window.scrollY/(document.body.scrollHeight-window.innerHeight)*100,100)+'%';});
+</script>
+</body>
+</html>

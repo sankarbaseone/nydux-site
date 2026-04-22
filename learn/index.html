@@ -1,732 +1,267 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ML Systems Mastery — HPC GPU Course by Sankar Sathish</title>
-<meta name="description" content="The only course that teaches NCCL tuning, GPUDirect RDMA, FSDP vs ZeRO-3 trade-offs and profiling-driven optimization from real production cluster work.">
-<style>
-  /* ── RESET & BASE ── */
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --green: #00ff41;
-    --green-dim: #00cc33;
-    --black: #0a0a0a;
-    --dark: #111111;
-    --dark2: #141414;
-    --text: #e8e8e8;
-    --text-muted: #666660;
-    --border: rgba(0,255,65,0.12);
-    --border-dim: rgba(255,255,255,0.06);
-    --font-mono: 'Courier New', 'Courier', monospace;
-    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --font-display: 'Arial Black', 'Arial', sans-serif;
-  }
-  html { scroll-behavior: smooth; }
-  body {
-    background: var(--black);
-    color: var(--text);
-    font-family: var(--font-mono);
-    font-size: 14px;
-    line-height: 1.7;
-    overflow-x: hidden;
-  }
-  a { color: inherit; text-decoration: none; }
-
-  /* ── GRID BACKGROUND ── */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,255,65,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,255,65,0.03) 1px, transparent 1px);
-    background-size: 48px 48px;
-    pointer-events: none;
-    z-index: 0;
-  }
-  nav, section, footer, .ticker-wrap, .final-cta { position: relative; z-index: 1; background: #0a0a0a; }
-
-  /* ── NAV ── */
-  nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 18px 48px;
-    border-bottom: 1px solid var(--border);
-    background: rgba(10,10,10,0.95);
-    backdrop-filter: blur(12px);
-  }
-  .nav-logo { font-size: 12px; letter-spacing: 0.1em; color: var(--green); }
-  .nav-status {
-    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--text-muted);
-    border: 1px solid var(--border);
-    padding: 6px 14px;
-  }
-  .nav-status span { color: var(--green); }
-
-  /* ── HERO ── */
-  .hero {
-    min-height: 100vh;
-    display: flex; flex-direction: column; justify-content: center;
-    padding: 120px 48px 80px;
-    border-bottom: 1px solid var(--border);
-    background: var(--black);
-  }
-  .hero-eyebrow {
-    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
-    color: var(--green); margin-bottom: 32px;
-    display: flex; align-items: center; gap: 12px;
-  }
-  .hero-eyebrow::before { content: '——'; opacity: 0.5; }
-  .hero h1 {
-    font-family: var(--font-display);
-    font-size: clamp(56px, 9vw, 120px);
-    font-weight: 900;
-    line-height: 0.95;
-    letter-spacing: -0.03em;
-    text-transform: uppercase;
-    margin-bottom: 32px;
-  }
-  .hero h1 .line-white { color: var(--text); display: block; }
-  .hero h1 .line-green { color: var(--green); display: block; }
-  .hero h1 .line-muted { color: rgba(255,255,255,0.25); display: block; }
-  .hero-sub {
-    font-size: 15px; color: var(--text-muted);
-    max-width: 600px; line-height: 1.8; margin-bottom: 48px;
-  }
-  .hero-sub strong { color: var(--text); }
-
-  /* ── METRICS ── */
-  .metrics-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr);
-    border: 1px solid var(--border);
-    margin-bottom: 40px;
-  }
-  @media (max-width: 700px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
-  .metric-box {
-    padding: 24px 28px;
-    border-right: 1px solid var(--border);
-  }
-  .metric-box:last-child { border-right: none; }
-  .metric-val {
-    font-family: var(--font-mono); font-size: 28px;
-    color: var(--green); letter-spacing: -0.02em;
-    display: block; margin-bottom: 4px;
-  }
-  .metric-label { font-size: 11px; color: var(--text-muted); letter-spacing: 0.06em; }
-
-  /* ── WAITLIST FORM ── */
-  .waitlist-form-wrap { max-width: 560px; }
-  .waitlist-form {
-    display: flex; gap: 0;
-    border: 1px solid var(--border);
-  }
-  .waitlist-form input {
-    flex: 1; padding: 14px 18px;
-    background: transparent; border: none;
-    border-right: 1px solid var(--border);
-    color: var(--text); font-family: var(--font-mono); font-size: 13px;
-    outline: none;
-  }
-  .waitlist-form input::placeholder { color: var(--text-muted); }
-  .waitlist-form input:focus { background: rgba(0,255,65,0.03); }
-  .waitlist-form button {
-    padding: 14px 28px;
-    background: var(--green); color: var(--black);
-    border: none; cursor: pointer;
-    font-family: var(--font-mono); font-size: 12px;
-    font-weight: 700; letter-spacing: 0.06em;
-    text-transform: uppercase; white-space: nowrap;
-    transition: background 0.15s;
-  }
-  .waitlist-form button:hover { background: #33ff66; }
-  .form-note { font-size: 11px; color: var(--text-muted); margin-top: 10px; letter-spacing: 0.06em; }
-  .success-msg {
-    display: none;
-    padding: 16px 20px;
-    border: 1px solid var(--green);
-    color: var(--green);
-    font-size: 13px; letter-spacing: 0.04em;
-  }
-
-  /* ── TICKER ── */
-  .ticker-wrap {
-    overflow: hidden;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    background: var(--dark2);
-    padding: 14px 0;
-  }
-  .ticker {
-    display: flex; gap: 48px;
-    animation: ticker 30s linear infinite;
-    width: max-content;
-  }
-  .ticker-item { font-size: 11px; color: var(--green); letter-spacing: 0.1em; white-space: nowrap; }
-  .ticker-item::after { content: ' ·'; color: var(--text-muted); margin-left: 48px; }
-  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-
-  /* ── SECTION BASE ── */
-  .section {
-    padding: 100px 48px;
-    border-bottom: 1px solid var(--border);
-    background: #0a0a0a;
-    background: var(--black);
-    opacity: 1 !important;
-    transform: none !important;
-    position: relative;
-    z-index: 1;
-  }
-  .section-inner { max-width: 960px; margin: 0 auto; }
-  .section-label {
-    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--text-muted); margin-bottom: 16px;
-  }
-  .section-title {
-    font-family: var(--font-display);
-    font-size: clamp(32px, 4vw, 56px);
-    font-weight: 900; line-height: 1.0;
-    text-transform: uppercase; letter-spacing: -0.02em;
-    margin-bottom: 48px;
-  }
-  .section-title .accent { color: var(--green); }
-  .section-title .break { display: block; }
-
-  /* ── PROBLEM ── */
-  .problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); }
-  @media (max-width: 700px) { .problem-grid { grid-template-columns: 1fr; } }
-  .problem-item {
-    padding: 36px 32px;
-    background: var(--black);
-  }
-  .problem-num { font-size: 11px; color: var(--green); letter-spacing: 0.1em; margin-bottom: 12px; }
-  .problem-text { font-size: 14px; color: var(--text-muted); line-height: 1.8; }
-  .problem-text strong { color: var(--text); }
-
-  /* ── WHO ── */
-  .who-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); margin-bottom: 32px; }
-  @media (max-width: 700px) { .who-grid { grid-template-columns: 1fr; } }
-  .who-card {
-    padding: 36px 28px;
-    background: var(--black);
-  }
-  .who-role { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 12px; }
-  .who-desc { font-size: 13px; color: var(--text-muted); line-height: 1.8; }
-  .who-not {
-    font-size: 12px; color: var(--text-muted); letter-spacing: 0.06em;
-    border: 1px solid var(--border-dim); padding: 14px 20px;
-    display: inline-block;
-  }
-  .who-not span { color: var(--text); }
-
-  /* ── CURRICULUM ── */
-  .curriculum-grid { display: flex; flex-direction: column; }
-  .curriculum-item {
-    display: grid; grid-template-columns: 48px 1fr 80px;
-    align-items: start; gap: 24px;
-    padding: 28px 0;
-    border-top: 1px solid var(--border-dim);
-  }
-  .curriculum-item:last-child { border-bottom: 1px solid var(--border-dim); }
-  .curr-num { font-size: 12px; color: var(--green); letter-spacing: 0.08em; padding-top: 2px; }
-  .curr-content h3 { font-size: 14px; color: var(--text); margin-bottom: 4px; font-family: var(--font-mono); font-weight: 700; }
-  .curr-content p { font-size: 12px; color: var(--text-muted); }
-  .curr-level {
-    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
-    padding: 4px 10px; text-align: center;
-  }
-  .curr-level.foundation { border: 1px solid var(--border-dim); color: var(--text-muted); }
-  .curr-level.core { border: 1px solid rgba(0,255,65,0.3); color: var(--green); }
-  .curr-level.advanced { border: 1px solid rgba(0,255,65,0.5); color: var(--green); background: rgba(0,255,65,0.05); }
-  .curr-level.mastery { background: var(--green); color: var(--black); border: 1px solid var(--green); }
-
-  /* ── INSTRUCTOR ── */
-  .instructor-grid { display: grid; grid-template-columns: 80px 1fr; gap: 48px; align-items: start; }
-  @media (max-width: 700px) { .instructor-grid { grid-template-columns: 1fr; } }
-  .instructor-avatar {
-    width: 72px; height: 72px;
-    background: var(--green); color: var(--black);
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--font-display); font-size: 18px; font-weight: 900;
-  }
-  .instructor-name { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-  .instructor-title { font-size: 12px; color: var(--green); letter-spacing: 0.08em; margin-bottom: 24px; }
-  .instructor-bio { font-size: 14px; color: var(--text-muted); line-height: 1.9; max-width: 640px; margin-bottom: 28px; }
-  .instructor-bio strong { color: var(--text); }
-  .instructor-stats { display: flex; flex-direction: column; gap: 10px; }
-  .instructor-stat { font-size: 12px; color: var(--text-muted); padding-left: 16px; position: relative; }
-  .instructor-stat::before { content: '→'; position: absolute; left: 0; color: var(--green); }
-
-  /* ── PRICING ── */
-  .pricing-intro { font-size: 14px; color: var(--text-muted); margin-bottom: 40px; }
-  .pricing-intro strong { color: var(--green); }
-  .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); margin-bottom: 20px; }
-  @media (max-width: 700px) { .pricing-grid { grid-template-columns: 1fr; } }
-  .pricing-card {
-    padding: 48px 36px;
-    background: var(--black);
-    position: relative;
-  }
-  .pricing-card.featured { background: var(--dark2); }
-  .pricing-badge {
-    position: absolute; top: 20px; right: 20px;
-    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
-    background: var(--green); color: var(--black);
-    padding: 4px 10px;
-  }
-  .pricing-type { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
-  .pricing-price {
-    font-family: var(--font-display); font-size: 52px; font-weight: 900;
-    color: var(--green); line-height: 1; margin-bottom: 4px;
-  }
-  .pricing-qualifier { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
-  .pricing-note { font-size: 11px; color: var(--text-muted); margin-bottom: 28px; opacity: 0.6; }
-  .pricing-features { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
-  .pricing-features li { font-size: 12px; color: var(--text-muted); padding-left: 16px; position: relative; }
-  .pricing-features li::before { content: '·'; position: absolute; left: 0; color: var(--green); }
-  .pricing-cta {
-    display: block; width: 100%; padding: 14px;
-    border: 1px solid var(--green); color: var(--green);
-    font-family: var(--font-mono); font-size: 12px;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    text-align: center; cursor: pointer;
-    background: transparent;
-    transition: background 0.15s, color 0.15s;
-  }
-  .pricing-cta:hover, .pricing-cta.primary { background: var(--green); color: var(--black); }
-  .pricing-anchor {
-    font-size: 11px; color: var(--text-muted); text-align: center;
-    letter-spacing: 0.08em;
-  }
-  .pricing-anchor strong { color: var(--green); }
-
-  /* ── FINAL CTA ── */
-  .final-cta {
-    padding: 120px 48px;
-    background: var(--dark2);
-    text-align: center;
-    border-bottom: 1px solid var(--border);
-  }
-  .final-cta h2 {
-    font-family: var(--font-display);
-    font-size: clamp(36px, 5vw, 64px);
-    font-weight: 900; text-transform: uppercase;
-    letter-spacing: -0.02em; line-height: 1.0;
-    margin-bottom: 12px;
-  }
-  .final-cta h2 .accent { color: var(--green); }
-  .final-cta p { font-size: 14px; color: var(--text-muted); margin-bottom: 40px; }
-  .final-waitlist-form {
-    display: flex; gap: 0; max-width: 480px; margin: 0 auto 16px;
-    border: 1px solid var(--border);
-  }
-  .final-waitlist-form input {
-    flex: 1; padding: 14px 18px;
-    background: transparent; border: none;
-    border-right: 1px solid var(--border);
-    color: var(--text); font-family: var(--font-mono); font-size: 13px;
-    outline: none;
-  }
-  .final-waitlist-form input::placeholder { color: var(--text-muted); }
-  .final-waitlist-form button {
-    padding: 14px 24px;
-    background: var(--green); color: var(--black);
-    border: none; cursor: pointer;
-    font-family: var(--font-mono); font-size: 12px;
-    font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
-    transition: background 0.15s;
-  }
-  .final-waitlist-form button:hover { background: #33ff66; }
-  .final-success {
-    display: none; font-size: 13px; color: var(--green);
-    border: 1px solid var(--green); padding: 14px 20px;
-    max-width: 480px; margin: 0 auto;
-  }
-  .final-note { font-size: 11px; color: var(--text-muted); letter-spacing: 0.06em; }
-
-  /* ── FOOTER ── */
-  footer {
-    padding: 28px 48px;
-    border-top: 1px solid var(--border);
-    display: flex; justify-content: space-between; align-items: center;
-    flex-wrap: wrap; gap: 16px;
-    background: var(--black);
-  }
-  .footer-copy { font-size: 11px; color: var(--text-muted); letter-spacing: 0.06em; }
-  .footer-links { display: flex; gap: 24px; }
-  .footer-links a { font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; }
-  .footer-links a:hover { color: var(--green); }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 768px) {
-    nav { padding: 14px 20px; }
-    .hero { padding: 100px 20px 60px; }
-    .section { padding: 72px 20px; }
-    .waitlist-form { flex-direction: column; }
-    .waitlist-form input { border-right: none; border-bottom: 1px solid var(--border); }
-    footer { padding: 20px; }
-    .final-cta { padding: 80px 20px; }
-    .final-waitlist-form { flex-direction: column; }
-    .final-waitlist-form input { border-right: none; border-bottom: 1px solid var(--border); }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intelligence Hub — AI Infrastructure Deep Dives | NYDUX</title>
+  <meta name="description" content="Technical breakdowns of real AI infrastructure problems — NCCL, MFU, AllReduce, GPU cluster benchmarks. Written by Sankar Panneer Selvam, Founder at NYDUX.">
+  <meta name="keywords" content="AI infrastructure, GPU cluster, NCCL, MFU optimization, distributed training, LLM training, HPC, NYDUX, Sankar Panneer Selvam">
+  <meta name="author" content="Sankar Panneer Selvam">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <link rel="canonical" href="https://learn.nydux.ai">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="NYDUX Intelligence Hub">
+  <meta property="og:title" content="Intelligence Hub — AI Infrastructure Deep Dives | NYDUX">
+  <meta property="og:description" content="Technical breakdowns of real GPU cluster problems. NCCL, MFU, AllReduce, benchmarks. Real data, not documentation rewrites.">
+  <meta property="og:url" content="https://learn.nydux.ai">
+  <meta property="og:image" content="https://nydux.ai/og-learn.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@nydux_ai">
+  <meta name="twitter:title" content="NYDUX Intelligence Hub — AI Infrastructure Deep Dives">
+  <meta name="twitter:image" content="https://nydux.ai/og-learn.png">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"CollectionPage","name":"NYDUX Intelligence Hub","description":"Technical breakdowns of real AI infrastructure problems","url":"https://learn.nydux.ai","publisher":{"@type":"Organization","name":"NYDUX","url":"https://nydux.ai"}}
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ELWKF4SKC0"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-ELWKF4SKC0',{page_title:'Intelligence Hub',page_location:'https://learn.nydux.ai'});</script>
+  <style>
+    :root{--green:#00FF41;--green-dim:#00cc34;--green-faint:rgba(0,255,65,0.08);--green-border:rgba(0,255,65,0.2);--bg:#030a03;--bg-card:#080f08;--bg-elevated:#0d160d;--text:#e8f5e8;--text-dim:#7a9e7a;--text-muted:#4a6b4a;--red:#ff4444;--amber:#ffaa00;--blue:#4af0ff;--white:#ffffff;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:15px;line-height:1.75;overflow-x:hidden;}
+    body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:9999;}
+    body::after{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background-image:linear-gradient(rgba(0,255,65,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,65,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+    #nydux-progress{position:fixed;top:0;left:0;height:2px;width:0%;background:var(--green);z-index:9998;box-shadow:0 0 8px var(--green);}
+    /* NAV */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 40px;background:rgba(3,10,3,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--green-border);}
+    .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+    .nav-logo-mark{width:32px;height:32px;background:var(--green);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;color:var(--bg);font-size:18px;}
+    .nav-logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--white);}
+    .nav-logo-sub{font-size:10px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-top:1px;}
+    .nav-links{display:flex;gap:28px;list-style:none;align-items:center;}
+    .nav-links a{color:var(--text-dim);text-decoration:none;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;transition:color 0.2s;}
+    .nav-links a:hover,.nav-links a.active{color:var(--green);}
+    .nav-cta{background:var(--green)!important;color:var(--bg)!important;padding:8px 18px;font-weight:700!important;}
+    .nav-cta:hover{background:transparent!important;color:var(--green)!important;outline:1px solid var(--green);}
+    /* HERO */
+    .hero{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:140px 40px 80px;}
+    .hero-eyebrow{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:20px;}
+    .hero-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(36px,6vw,64px);line-height:1.05;color:var(--white);margin-bottom:20px;letter-spacing:-0.02em;}
+    .hero-title span{color:var(--green);}
+    .hero-sub{font-size:16px;color:var(--text-dim);max-width:560px;line-height:1.7;margin-bottom:40px;}
+    .hero-stats{display:flex;gap:40px;flex-wrap:wrap;}
+    .hero-stat-num{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--green);line-height:1;}
+    .hero-stat-label{font-size:11px;color:var(--text-muted);margin-top:4px;letter-spacing:0.05em;}
+    /* ARTICLES */
+    .articles-section{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 40px 80px;}
+    .section-label{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:32px;display:flex;align-items:center;gap:12px;}
+    .section-label::after{content:'';flex:1;height:1px;background:var(--green-border);}
+    /* FEATURED */
+    .featured-card{background:var(--bg-card);border:1px solid var(--green-border);padding:40px;margin-bottom:24px;display:grid;grid-template-columns:1fr auto;gap:32px;align-items:start;text-decoration:none;transition:border-color 0.2s,background 0.2s;position:relative;overflow:hidden;}
+    .featured-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--green);}
+    .featured-card:hover{border-color:var(--green);background:rgba(0,255,65,0.04);}
+    .featured-card-tag{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--green);margin-bottom:12px;}
+    .featured-card-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(20px,3vw,28px);color:var(--white);line-height:1.15;margin-bottom:12px;letter-spacing:-0.01em;}
+    .featured-card-desc{font-size:14px;color:var(--text-dim);line-height:1.65;margin-bottom:20px;max-width:560px;}
+    .featured-card-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;}
+    .meta-item{font-size:11px;color:var(--text-muted);}
+    .meta-item.green{color:var(--green);}
+    .featured-card-arrow{font-family:'Syne',sans-serif;font-size:32px;color:var(--green);font-weight:800;transition:transform 0.2s;}
+    .featured-card:hover .featured-card-arrow{transform:translateX(6px);}
+    /* ARTICLE GRID */
+    .article-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-top:24px;}
+    .article-card{background:var(--bg-card);border:1px solid var(--green-border);padding:24px;text-decoration:none;display:block;transition:border-color 0.2s,background 0.2s;}
+    .article-card:hover{border-color:var(--green);background:var(--green-faint);}
+    .article-card-tag{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--green);margin-bottom:10px;}
+    .article-card-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--white);line-height:1.3;margin-bottom:10px;}
+    .article-card-desc{font-size:12px;color:var(--text-muted);line-height:1.55;margin-bottom:16px;}
+    .article-card-meta{font-size:11px;color:var(--text-muted);}
+    .article-card-meta span{color:var(--green);}
+    /* COMING SOON */
+    .coming-soon-card{background:var(--bg-card);border:1px dashed var(--green-border);padding:24px;opacity:0.5;}
+    .coming-soon-label{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;}
+    .coming-soon-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--text-muted);}
+    /* CTA BANNER */
+    .cta-banner{position:relative;z-index:1;max-width:1100px;margin:0 auto 80px;padding:0 40px;}
+    .cta-inner{background:linear-gradient(135deg,var(--bg-card) 0%,rgba(0,255,65,0.05) 100%);border:1px solid var(--green-border);padding:48px;text-align:center;position:relative;overflow:hidden;}
+    .cta-inner::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent);}
+    .cta-title{font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:var(--white);margin-bottom:12px;}
+    .cta-sub{font-size:15px;color:var(--text-dim);margin-bottom:28px;max-width:480px;margin-left:auto;margin-right:auto;}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;letter-spacing:0.05em;cursor:pointer;transition:all 0.2s;text-decoration:none;white-space:nowrap;}
+    .btn-primary{background:var(--green);color:var(--bg);border:1px solid var(--green);}
+    .btn-primary:hover{background:transparent;color:var(--green);}
+    .btn-outline{background:transparent;color:var(--green);border:1px solid var(--green-border);}
+    .btn-outline:hover{border-color:var(--green);background:var(--green-faint);}
+    .trust-badges{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-top:20px;}
+    .trust-badge{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:5px;}
+    .trust-badge::before{content:'✓';color:var(--green);}
+    /* FOOTER */
+    footer{position:relative;z-index:1;border-top:1px solid var(--green-border);padding:48px 40px 32px;}
+    .footer-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;}
+    .footer-brand-mark{width:36px;height:36px;background:var(--green);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;color:var(--bg);font-size:20px;margin-bottom:12px;}
+    .footer-brand-name{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--white);margin-bottom:6px;}
+    .footer-brand-tag{font-size:12px;color:var(--text-muted);line-height:1.6;max-width:220px;}
+    .footer-col-title{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--green);margin-bottom:16px;}
+    .footer-col ul{list-style:none;}
+    .footer-col li{margin-bottom:10px;}
+    .footer-col a{color:var(--text-muted);text-decoration:none;font-size:13px;transition:color 0.2s;}
+    .footer-col a:hover{color:var(--green);}
+    .footer-bottom{max-width:1100px;margin:32px auto 0;padding-top:24px;border-top:1px solid var(--green-border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--text-muted);}
+    /* RESPONSIVE */
+    @media(max-width:900px){.article-grid{grid-template-columns:1fr 1fr;}.footer-inner{grid-template-columns:1fr 1fr;}.featured-card{grid-template-columns:1fr;}}
+    @media(max-width:600px){nav{padding:14px 20px;}.nav-links{display:none;}.hero{padding:120px 20px 60px;}.articles-section,.cta-banner{padding-left:20px;padding-right:20px;}.article-grid{grid-template-columns:1fr;}.footer-inner{grid-template-columns:1fr;}.footer-bottom{flex-direction:column;align-items:flex-start;}}
+  </style>
 </head>
 <body>
+<div id="nydux-progress"></div>
 
-<!-- NAV -->
-<nav>
-  <div class="nav-logo">// NYDUX INTELLIGENCE</div>
-  <div style="display:flex;gap:24px;align-items:center">
-    <a href="#articles" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#666660;text-decoration:none">Articles</a>
-    <a href="#course" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#666660;text-decoration:none">Course</a>
-    <a href="https://hire.nydux.ai" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#00ff41;border:1px solid rgba(0,255,65,0.4);padding:6px 14px;text-decoration:none">Work with Sankar</a>
-  </div>
+<nav role="navigation" aria-label="Main navigation">
+  <a href="https://nydux.ai" class="nav-logo">
+    <div class="nav-logo-mark">N</div>
+    <div><div class="nav-logo-text">NYDUX</div><div class="nav-logo-sub">Intelligence Hub</div></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="https://nydux.ai">Home</a></li>
+    <li><a href="https://learn.nydux.ai" class="active">Articles</a></li>
+    <li><a href="https://hire.nydux.ai">Hire</a></li>
+    <li><a href="https://nydux.ai#diagnostic" class="nav-cta" onclick="gtag('event','nav_diagnostic_click')">Book Diagnostic</a></li>
+  </ul>
 </nav>
 
-<!-- HERO -->
 <section class="hero">
-  <div class="hero-eyebrow">Technical breakdowns of real AI infrastructure bottlenecks</div>
-  <h1>
-    <span class="line-white">These problems are</span>
-    <span class="line-green">costing teams</span>
-    <span class="line-muted">six figures.</span>
-  </h1>
-  <p class="hero-sub">
-    From NCCL inefficiencies to GPU underutilization — documented from production clusters, not documentation rewrites. <strong>Written by Sankar Sathish</strong>, AI HPC Infrastructure Architect with 7 years of production GPU cluster engineering.
-  </p>
-  <p style="max-width:560px;color:#666660;font-size:13px;margin-bottom:32px;line-height:1.9;margin-top:-8px">These are not tutorials. These are breakdowns from production clusters — where inefficiencies translate directly into cost. Every number here came from a real engagement.</p>
-
-  <!-- START HERE -->
-  <div style="margin-bottom:40px">
-    <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#666660;margin-bottom:16px;">// Start here</div>
-    <div style="display:flex;flex-direction:column;gap:0;max-width:560px;border:1px solid rgba(0,255,65,0.12);">
-      <a href="allreduce.html" style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid rgba(0,255,65,0.08);text-decoration:none;transition:background .2s" onmouseover="this.style.background='rgba(0,255,65,0.04)'" onmouseout="this.style.background='transparent'">
-        <div>
-          <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#00ff41;margin-bottom:4px;">NCCL &amp; Collectives</div>
-          <div style="font-size:13px;color:#e8e8e8;">Why your AllReduce is costing you 8% step time</div>
-        </div>
-        <span style="color:#00ff41;font-size:16px;margin-left:16px">→</span>
-      </a>
-      <a href="#" style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid rgba(0,255,65,0.08);text-decoration:none;opacity:.5">
-        <div>
-          <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#00ff41;margin-bottom:4px;">Economics</div>
-          <div style="font-size:13px;color:#e8e8e8;">The $340K GPU utilization problem nobody measures</div>
-        </div>
-        <span style="color:#666660;font-size:11px;letter-spacing:.08em">Coming soon</span>
-      </a>
-      <a href="#" style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid rgba(0,255,65,0.08);text-decoration:none;opacity:.5">
-        <div>
-          <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#00ff41;margin-bottom:4px;">Distributed Training</div>
-          <div style="font-size:13px;color:#e8e8e8;">FSDP vs ZeRO-3: what the framework docs won't tell you</div>
-        </div>
-        <span style="color:#666660;font-size:11px;letter-spacing:.08em">Coming soon</span>
-      </a>
-      <a href="#" style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid rgba(0,255,65,0.08);text-decoration:none;opacity:.5">
-        <div>
-          <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#00ff41;margin-bottom:4px;">Profiling</div>
-          <div style="font-size:13px;color:#e8e8e8;">How to root-cause a training bottleneck in 30 minutes</div>
-        </div>
-        <span style="color:#666660;font-size:11px;letter-spacing:.08em">Coming soon</span>
-      </a>
-      <a href="#" style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;text-decoration:none;opacity:.5">
-        <div>
-          <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#00ff41;margin-bottom:4px;">Sovereign Infra</div>
-          <div style="font-size:13px;color:#e8e8e8;">Why sovereign AI clusters fail at the network layer</div>
-        </div>
-        <span style="color:#666660;font-size:11px;letter-spacing:.08em">Coming soon</span>
-      </a>
-    </div>
+  <div class="hero-eyebrow">// NYDUX Intelligence Hub</div>
+  <h1 class="hero-title">These problems are<br><span>costing teams</span><br>six figures.</h1>
+  <p class="hero-sub">Technical breakdowns of real AI infrastructure bottlenecks — from NCCL misconfigurations to GPU underutilization. Documented from production clusters, not documentation rewrites.</p>
+  <div class="hero-stats">
+    <div><div class="hero-stat-num">$480K</div><div class="hero-stat-label">Annual savings delivered</div></div>
+    <div><div class="hero-stat-num">7%→40%</div><div class="hero-stat-label">MFU improvement, 128 GPUs</div></div>
+    <div><div class="hero-stat-num">3</div><div class="hero-stat-label">Published deep dives</div></div>
   </div>
+</section>
 
-  <!-- SIDEBAR CTA STRIP -->
-  <div style="max-width:560px;border:1px solid rgba(0,255,65,0.25);padding:20px 24px;background:rgba(0,255,65,0.03);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
+<section class="articles-section">
+  <div class="section-label">Featured</div>
+
+  <a href="https://learn.nydux.ai/gcp-benchmark-mtu-cliff" class="featured-card" onclick="gtag('event','article_click',{event_label:'gcp_benchmark'})">
     <div>
-      <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#00ff41;margin-bottom:6px;">// Fractional AI Infra CTO</div>
-      <div style="font-size:14px;color:#e8e8e8;font-weight:500;">Is this your cluster? Let's look at the data together.</div>
-      <div style="font-size:12px;color:#666660;margin-top:4px;">3 client slots · 1 currently open</div>
+      <div class="featured-card-tag">🔴 Benchmark · Real Data · April 21, 2026</div>
+      <div class="featured-card-title">The MTU Cliff Costing GPU Clusters $180K/Year</div>
+      <p class="featured-card-desc">Real multi-node MPI benchmarks on GCP reveal a 7× latency jump at 64KB — the MTU boundary effect destroying AllReduce efficiency in production clusters. Raw data, root cause, fix.</p>
+      <div class="featured-card-meta">
+        <span class="meta-item">8 min read</span>
+        <span class="meta-item green">GCP · NCCL · AllReduce</span>
+        <span class="meta-item">OSU Micro-Benchmarks v7.3</span>
+      </div>
     </div>
-    <a href="https://cal.com/sankarsathish/20-min-ai-infrastructure-intro" target="_blank" style="display:inline-block;padding:10px 22px;background:#00ff41;color:#0a0a0a;font-family:'Courier New',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;white-space:nowrap;text-decoration:none;">→ Book 20 min</a>
+    <div class="featured-card-arrow">→</div>
+  </a>
+
+  <div class="section-label" style="margin-top:48px;">All Articles</div>
+  <div class="article-grid">
+
+    <a href="https://learn.nydux.ai/mfu-case-study" class="article-card" onclick="gtag('event','article_click',{event_label:'mfu_case_study'})">
+      <div class="article-card-tag">Case Study · MFU Optimization</div>
+      <div class="article-card-title">7% → 40% MFU: Full Diagnosis Walkthrough</div>
+      <p class="article-card-desc">How three NCCL changes recovered $480K of annual GPU compute on a 128-GPU A100 cluster. Zero new hardware.</p>
+      <div class="article-card-meta">10 min read · <span>128× A100 · NCCL · FSDP</span></div>
+    </a>
+
+    <a href="https://learn.nydux.ai/allreduce" class="article-card" onclick="gtag('event','article_click',{event_label:'allreduce'})">
+      <div class="article-card-tag">Deep Dive · NCCL</div>
+      <div class="article-card-title">Why Your AllReduce Is Costing You 8% Step Time</div>
+      <p class="article-card-desc">AllReduce above 2ms on InfiniBand NDR means you're losing time on every gradient sync. Here's the root cause and the fix.</p>
+      <div class="article-card-meta">8 min read · <span>InfiniBand · NCCL · A100</span></div>
+    </a>
+
+    <a href="https://learn.nydux.ai/gcp-benchmark-mtu-cliff" class="article-card" onclick="gtag('event','article_click',{event_label:'gcp_benchmark_grid'})">
+      <div class="article-card-tag">Benchmark · GCP · Real Data</div>
+      <div class="article-card-title">GCP Multi-Node Benchmark: The MTU Cliff</div>
+      <p class="article-card-desc">21μs → 158μs at a single message size boundary. OSU Micro-Benchmarks v7.3, two GCP nodes, real data.</p>
+      <div class="article-card-meta">8 min read · <span>GCP · OSU · MTU</span></div>
+    </a>
+
+    <div class="coming-soon-card">
+      <div class="coming-soon-label">Coming Apr 24</div>
+      <div class="coming-soon-title">Cerebras IPO → What It Means for Inference vs Training Infrastructure</div>
+    </div>
+
+    <div class="coming-soon-card">
+      <div class="coming-soon-label">Coming Apr 26</div>
+      <div class="coming-soon-title">Near-Linear Scaling Breakdown: 3 Places Efficiency Dies</div>
+    </div>
+
+    <div class="coming-soon-card">
+      <div class="coming-soon-label">Coming soon</div>
+      <div class="coming-soon-title">TPU vs GPU: Real Benchmark Comparison on JAX Workloads</div>
+    </div>
+
   </div>
 </section>
 
-<!-- METRICS -->
-<div style="display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid rgba(0,255,65,0.12);border-bottom:1px solid rgba(0,255,65,0.12);background:#111111;position:relative;z-index:1" id="articles">
-  <div style="padding:24px 28px;border-right:1px solid rgba(0,255,65,0.08)"><span style="font-family:'Courier New',monospace;font-size:28px;color:#00ff41;display:block;margin-bottom:4px">4.2→0.8ms</span><span style="font-size:11px;color:#666660;letter-spacing:.06em">AllReduce latency</span></div>
-  <div style="padding:24px 28px;border-right:1px solid rgba(0,255,65,0.08)"><span style="font-family:'Courier New',monospace;font-size:28px;color:#00ff41;display:block;margin-bottom:4px">87%</span><span style="font-size:11px;color:#666660;letter-spacing:.06em">GPU utilization</span></div>
-  <div style="padding:24px 28px;border-right:1px solid rgba(0,255,65,0.08)"><span style="font-family:'Courier New',monospace;font-size:28px;color:#00ff41;display:block;margin-bottom:4px">7d→18h</span><span style="font-size:11px;color:#666660;letter-spacing:.06em">Training speedup</span></div>
-  <div style="padding:24px 28px"><span style="font-family:'Courier New',monospace;font-size:28px;color:#00ff41;display:block;margin-bottom:4px">$480K</span><span style="font-size:11px;color:#666660;letter-spacing:.06em">Saved per year</span></div>
+<div class="cta-banner">
+  <div class="cta-inner">
+    <div class="cta-title">Does Your Cluster Have These Problems?</div>
+    <p class="cta-sub">Most production GPU clusters do. A full diagnostic identifies exactly where your compute is going and what it costs.</p>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+      <a href="https://nydux.ai" class="btn btn-primary" onclick="gtag('event','conversion',{event_category:'lead',event_label:'learn_hub_cta',value:5000})">→ Book a Diagnostic</a>
+      <a href="https://cal.com/sankarsathish/20-min-ai-infrastructure-intro" class="btn btn-outline" target="_blank" rel="noopener" onclick="gtag('event','calendar_click',{event_label:'learn_hub'})">→ Free 20-min Call</a>
+    </div>
+    <p style="font-size:13px;color:var(--text-muted);margin-top:16px;">GPU Cluster Diagnostic · <span style="color:var(--green)">$5,000</span> · Full findings in 5 days</p>
+    <div class="trust-badges">
+      <span class="trust-badge">Real cluster data</span>
+      <span class="trust-badge">128-GPU A100 track record</span>
+      <span class="trust-badge">$480K savings delivered</span>
+      <span class="trust-badge">5 business days</span>
+    </div>
+  </div>
 </div>
 
-<!-- TICKER -->
-<div class="ticker-wrap">
-  <div class="ticker">
-    <span class="ticker-item">AllReduce 4.2ms → 0.8ms</span>
-    <span class="ticker-item">16-node A100 cluster</span>
-    <span class="ticker-item">GPU utilization 61% → 87%</span>
-    <span class="ticker-item">InfiniBand NDR 400Gbps</span>
-    <span class="ticker-item">7 days → 18 hours training</span>
-    <span class="ticker-item">GPUDirect RDMA bypass</span>
-    <span class="ticker-item">$480K–$600K annual savings</span>
-    <span class="ticker-item">Utility patent filed</span>
-    <span class="ticker-item">FSDP / ZeRO-3 production depth</span>
-    <span class="ticker-item">Nsight Systems + Nsight Compute</span>
-    <span class="ticker-item">SHARP in-network aggregation</span>
-    <span class="ticker-item">13B-parameter LLM fine-tuning</span>
-    <!-- duplicate for seamless loop -->
-    <span class="ticker-item">AllReduce 4.2ms → 0.8ms</span>
-    <span class="ticker-item">16-node A100 cluster</span>
-    <span class="ticker-item">GPU utilization 61% → 87%</span>
-    <span class="ticker-item">InfiniBand NDR 400Gbps</span>
-    <span class="ticker-item">7 days → 18 hours training</span>
-    <span class="ticker-item">GPUDirect RDMA bypass</span>
-    <span class="ticker-item">$480K–$600K annual savings</span>
-    <span class="ticker-item">Utility patent filed</span>
-    <span class="ticker-item">FSDP / ZeRO-3 production depth</span>
-    <span class="ticker-item">Nsight Systems + Nsight Compute</span>
-    <span class="ticker-item">SHARP in-network aggregation</span>
-    <span class="ticker-item">13B-parameter LLM fine-tuning</span>
-  </div>
-</div>
-
-<!-- THE PROBLEM -->
-<section class="section">
-  <div class="section-inner">
-    <div class="section-label">The problem</div>
-    <h2 class="section-title">Every course stops<br><span class="accent">where the hard part starts.</span></h2>
-    <div class="problem-grid">
-      <div class="problem-item">
-        <div class="problem-num">01 //</div>
-        <p class="problem-text">You know how to <strong>call</strong> PyTorch's distributed APIs. You don't know what's happening inside NCCL when your AllReduce stalls and costs you 8% step time.</p>
-      </div>
-      <div class="problem-item">
-        <div class="problem-num">02 //</div>
-        <p class="problem-text">You've read the FSDP docs. Nobody has explained the <strong>actual trade-offs</strong> between FSDP and ZeRO-3 at batch size 512 on a real A100 cluster.</p>
-      </div>
-      <div class="problem-item">
-        <div class="problem-num">03 //</div>
-        <p class="problem-text">You know Nsight Systems exists. You've never used it to <strong>root-cause a training bottleneck</strong> in under 30 minutes the way a production engineer does.</p>
-      </div>
-      <div class="problem-item">
-        <div class="problem-num">04 //</div>
-        <p class="problem-text">GPU compute is expensive. Nobody has taught you the <strong>systems-layer levers</strong> that cut cluster costs 40% without sacrificing throughput — it's a patented approach for a reason.</p>
-      </div>
+<footer role="contentinfo">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand-mark">N</div>
+      <div class="footer-brand-name">NYDUX</div>
+      <p class="footer-brand-tag">AI Infrastructure Intelligence. Most AI teams have a systems problem, not a hardware problem.</p>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Pages</div>
+      <ul>
+        <li><a href="https://nydux.ai">Home</a></li>
+        <li><a href="https://learn.nydux.ai">Intelligence Hub</a></li>
+        <li><a href="https://hire.nydux.ai">Hire Sankar</a></li>
+        <li><a href="https://nydux.ai#diagnostic">Diagnostic</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Articles</div>
+      <ul>
+        <li><a href="https://learn.nydux.ai/gcp-benchmark-mtu-cliff">GCP Benchmark</a></li>
+        <li><a href="https://learn.nydux.ai/mfu-case-study">MFU Case Study</a></li>
+        <li><a href="https://learn.nydux.ai/allreduce">AllReduce Deep Dive</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Connect</div>
+      <ul>
+        <li><a href="https://www.linkedin.com/in/sankar-panneer-selvam-54820565" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="https://github.com/sankarbaseone" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="https://x.com/nydux_ai" target="_blank" rel="noopener">X / Twitter</a></li>
+        <li><a href="mailto:sankar@nydux.ai">sankar@nydux.ai</a></li>
+      </ul>
     </div>
   </div>
-</section>
-
-<!-- WHO THIS IS FOR -->
-<section class="section">
-  <div class="section-inner">
-    <div class="section-label">Who this is for</div>
-    <h2 class="section-title">Built for engineers<br><span class="accent">already in the arena.</span></h2>
-    <div class="who-grid">
-      <div class="who-card">
-        <div class="who-role">ML / Training engineers</div>
-        <p class="who-desc">You run distributed training jobs and know something's wrong with your GPU utilization. You want to fix it at the systems layer, not guess with config changes.</p>
-      </div>
-      <div class="who-card">
-        <div class="who-role">HPC infrastructure engineers</div>
-        <p class="who-desc">You manage GPU clusters and are expected to optimize throughput. You want the profiling methodology and NCCL internals knowledge to diagnose any bottleneck.</p>
-      </div>
-      <div class="who-card">
-        <div class="who-role">AI platform / MLOps engineers</div>
-        <p class="who-desc">You deploy and scale inference systems. You want to go deeper on TensorRT-LLM, PagedAttention, and the production serving stack that hits 95ms P50 at scale.</p>
-      </div>
-    </div>
-    <div class="who-not">// <span>NOT for beginners.</span> This course assumes you write Python, understand gradients, and have at least touched a GPU workload.</div>
-  </div>
-</section>
-
-<!-- CURRICULUM -->
-<section class="section">
-  <div class="section-inner">
-    <div class="section-label">Course curriculum</div>
-    <h2 class="section-title">8 modules. 40+ lessons.<br><span class="accent">Zero fluff.</span></h2>
-    <div class="curriculum-grid">
-      <div class="curriculum-item">
-        <div class="curr-num">01</div>
-        <div class="curr-content">
-          <h3>GPU architecture &amp; memory hierarchy</h3>
-          <p>SM architecture, HBM2e, NVLink vs PCIe, A100 vs H100</p>
-        </div>
-        <div class="curr-level foundation">Foundation</div>
-      </div>
-      <div class="curriculum-item">
-        <div class="curr-num">02</div>
-        <div class="curr-content">
-          <h3>CUDA programming for ML engineers</h3>
-          <p>Kernel writing, stream pipelining, kernel fusion, CUDA Graphs</p>
-        </div>
-        <div class="curr-level foundation">Foundation</div>
-      </div>
-      <div class="curriculum-item">
-        <div class="curr-num">03</div>
-        <div class="curr-content">
-          <h3>Distributed training frameworks — deep dive</h3>
-          <p>FSDP vs ZeRO-3 trade-offs, tensor/pipeline parallelism, MFU benchmarking</p>
-        </div>
-        <div class="curr-level core">Core</div>
-      </div>
-      <div class="curriculum-item">
-        <div class="curr-num">04</div>
-        <div class="curr-content">
-          <h3>NCCL, collective ops &amp; network tuning</h3>
-          <p>AllReduce internals, NCCL environment tuning, InfiniBand, SHARP</p>
-        </div>
-        <div class="curr-level core">Core</div>
-      </div>
-      <div class="curriculum-item">
-        <div class="curr-num">05</div>
-        <div class="curr-content">
-          <h3>GPUDirect RDMA &amp; high-speed networking</h3>
-          <p>RDMA bypass, ReduceScatter+AllGather, RoCE vs InfiniBand</p>
-        </div>
-        <div class="curr-level advanced">Advanced</div>
-      </div>
-      <div class="curriculum-item">
-        <div class="curr-num">06</div>
-        <div class="curr-content">
-          <h3>Profiling-driven optimization</h3>
-          <p>Nsight Systems, Nsight Compute, VTune — from symptom to root cause</p>
-        </div>
-        <div class="curr-level advanced">Advanced</div>
-      </div>
-      <div class="curriculum-item">
-        <div class="curr-num">07</div>
-        <div class="curr-content">
-          <h3>Inference systems at scale</h3>
-          <p>Triton Inference Server, TensorRT-LLM, PagedAttention, speculative decoding</p>
-        </div>
-        <div class="curr-level mastery">Mastery</div>
-      </div>
-      <div class="curriculum-item">
-        <div class="curr-num">08</div>
-        <div class="curr-content">
-          <h3>GPU cost optimization &amp; cluster economics</h3>
-          <p>Adaptive scheduling, mixed precision, the patented cost governance approach</p>
-        </div>
-        <div class="curr-level mastery">Mastery</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- INSTRUCTOR -->
-<section class="section">
-  <div class="section-inner">
-    <div class="section-label">Your instructor</div>
-    <div class="instructor-grid">
-      <div class="instructor-avatar">SS</div>
-      <div>
-        <div class="instructor-name">Sankar Sathish Panneer Selvam</div>
-        <div class="instructor-title">AI HPC Infrastructure Architect</div>
-        <p class="instructor-bio">
-          I'm not an academic. Everything in this course comes from <strong>7 years of production GPU cluster engineering</strong> — diagnosing real bottlenecks, shipping real optimizations, and defending them with real numbers.<br><br>
-          I reduced AllReduce latency from <strong>4.2ms to 0.8ms</strong> on a 16-node A100 cluster. I pushed GPU utilization to <strong>87%</strong> on a 13B-parameter LLM fine-tuning job. I filed a <strong>utility patent on adaptive GPU cost optimization</strong>. Every lesson in this course is built from that experience — not from reading documentation.
-        </p>
-        <div class="instructor-stats">
-          <div class="instructor-stat">14 years in enterprise distributed systems</div>
-          <div class="instructor-stat">7 years specializing in GPU cluster engineering</div>
-          <div class="instructor-stat">Utility patent — adaptive GPU cost optimization</div>
-          <div class="instructor-stat">3 technical publications on distributed LLM training</div>
-          <div class="instructor-stat">25+ engineers mentored at Capgemini &amp; Ericsson</div>
-          <div class="instructor-stat">$2M+ business value delivered from AI infrastructure</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- PRICING -->
-<section class="section" id="course">
-    <h2 class="section-title">Waitlist pricing.<br><span class="accent">Locked in forever.</span></h2>
-    <p class="pricing-intro">Launch price will be <strong>$499 / $1,999</strong>. Join the waitlist now — your price locks in permanently.</p>
-    <div class="pricing-grid">
-      <div class="pricing-card">
-        <div class="pricing-type">Self-paced</div>
-        <div class="pricing-price">$299</div>
-        <div class="pricing-qualifier">/early access</div>
-        <div class="pricing-note">Full course access. Go at your own speed. Lifetime access.</div>
-        <ul class="pricing-features">
-          <li>All 8 modules + 40+ lessons</li>
-          <li>Lab exercises with solutions</li>
-          <li>Profiling tool templates</li>
-          <li>Private community access</li>
-          <li>Lifetime updates</li>
-        </ul>
-        <button class="pricing-cta" onclick="document.querySelector('.waitlist-form input[type=email]').focus(); window.scrollTo({top:0, behavior:'smooth'})">Join waitlist for early access</button>
-      </div>
-      <div class="pricing-card featured">
-        <div class="pricing-badge">MOST VALUE</div>
-        <div class="pricing-type">Live cohort</div>
-        <div class="pricing-price">$1,499</div>
-        <div class="pricing-qualifier">/seat · 10-engineer cohort</div>
-        <div class="pricing-note" style="color:#00ff41">⚠ Only 3 seats remaining in first cohort</div>
-        <ul class="pricing-features">
-          <li>Everything in self-paced</li>
-          <li>Weekly live sessions (10 weeks)</li>
-          <li>Bring your own cluster workload</li>
-          <li>Direct Slack access to Sankar</li>
-          <li>Certificate of completion</li>
-        </ul>
-        <button class="pricing-cta primary" onclick="document.querySelector('.waitlist-form input[type=email]').focus(); window.scrollTo({top:0, behavior:'smooth'})">Reserve a cohort seat</button>
-      </div>
-    </div>
-    <p class="pricing-anchor">// Waitlist price locks in. Launch price will be <strong>$499 / $1,999</strong>. Join now to save.</p>
-  </div>
-</section>
-
-<!-- FINAL CTA -->
-<section class="final-cta">
-  <h2>Stop guessing.<br><span class="accent">Start profiling.</span></h2>
-  <p>Join engineers who want production depth, not framework tutorials.</p>
-  <form class="final-waitlist-form" name="waitlist-bottom" method="POST" data-netlify="true" onsubmit="handleSubmit(event, 'success-bottom')">
-    <input type="hidden" name="form-name" value="waitlist-bottom">
-    <input type="email" name="email" placeholder="your@email.com" required>
-    <button type="submit">Join waitlist</button>
-  </form>
-  <div id="success-bottom" class="final-success">✓ You're on the list. Early access pricing is locked in for you.</div>
-  <p class="final-note">// ML Systems Mastery by Sankar Sathish © 2026</p>
-</section>
-
-<!-- FOOTER -->
-<section style="padding:48px;text-align:center;border-top:1px solid rgba(0,255,65,0.12);background:#0a0a0a;position:relative;z-index:1">
-  <p style="font-size:14px;color:#666660;margin-bottom:12px">If you're already seeing these issues in production, you don't need a course. You need a specialist.</p>
-  <a href="https://hire.nydux.ai" style="color:#00ff41;font-size:13px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid rgba(0,255,65,0.3);text-decoration:none">See how I work with teams →</a>
-</section>
-
-<footer>
-  <div class="footer-copy">// ML Systems Mastery by Sankar Sathish · nydux.ai</div>
-  <div class="footer-links">
-    <a href="https://linkedin.com/in/sankar-panneer-selvam-54820565" target="_blank" rel="noopener">LinkedIn</a>
-    <a href="https://github.com/sankarbaseone" target="_blank" rel="noopener">GitHub</a>
-    <a href="https://hire.nydux.ai" target="_blank" rel="noopener">Hire Sankar</a>
+  <div class="footer-bottom">
+    <span>© 2026 NYDUX Pvt Ltd · CIN: U63999TN2026PTC188887</span>
+    <span>sankar@nydux.ai · Chennai, Tamil Nadu, India</span>
   </div>
 </footer>
 
 <script>
-function handleSubmit(e, successId) {
-  e.preventDefault();
-  const form = e.target;
-  const formData = new FormData(form);
-
-  fetch('/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams(formData).toString()
-  })
-  .then(() => {
-    form.style.display = 'none';
-    document.getElementById(successId).style.display = 'block';
-  })
-  .catch(() => {
-    // Fallback — show success anyway
-    form.style.display = 'none';
-    document.getElementById(successId).style.display = 'block';
-  });
-}
+  var bar=document.getElementById('nydux-progress');
+  window.addEventListener('scroll',function(){bar.style.width=Math.min(window.scrollY/(document.body.scrollHeight-window.innerHeight)*100,100)+'%';});
 </script>
-
 </body>
 </html>

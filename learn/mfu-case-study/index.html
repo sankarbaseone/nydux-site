@@ -171,15 +171,37 @@ footer{border-top:1px solid var(--border);padding:32px 48px;display:flex;justify
   .nav-links{display:none}
 }
 </style>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ELWKF4SKC0"></script>
+  <script>
+    window.dataLayer=window.dataLayer||[];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js',new Date());
+    gtag('config','G-ELWKF4SKC0',{page_title:'MFU Case Study 7% to 40%',page_location:'https://learn.nydux.ai/mfu-case-study'});
+    function diagnostic_click(loc){gtag('event','diagnostic_click',{event_category:'conversion',event_label:loc,value:5000});}
+    var s75=false;
+    window.addEventListener('scroll',function(){
+      var p=window.scrollY/(document.body.scrollHeight-window.innerHeight);
+      if(!p)return;
+      if(!s75&&p>=0.75){s75=true;gtag('event','scroll_75',{event_category:'engagement',event_label:'mfu_case_study'});}
+    });
+    setTimeout(function(){gtag('event','engaged_60s',{event_category:'engagement',event_label:'mfu_case_study'});},60000);
+  </script>
 </head>
 <body>
 
 <nav>
-  <a href="https://learn.nydux.ai" class="nav-logo">// NYDUX INTELLIGENCE</a>
+  <a href="https://nydux.ai" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+    <div style="width:32px;height:32px;background:#00FF41;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;color:#030a03;font-size:18px;flex-shrink:0;">N</div>
+    <div>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#ffffff;line-height:1;">NYDUX</div>
+      <div style="font-size:10px;color:#4a6b4a;letter-spacing:0.1em;text-transform:uppercase;">Intelligence Hub</div>
+    </div>
+  </a>
   <div class="nav-links">
-    <a href="https://learn.nydux.ai">Articles</a>
-    <a href="https://learn.nydux.ai/#course">Course</a>
-    <a href="https://hire.nydux.ai" class="nav-cta">Work with Sankar</a>
+    <a href="https://nydux.ai">Home</a>
+    <a href="https://learn.nydux.ai" style="color:#00FF41;">Intelligence Hub</a>
+    <a href="https://nydux.ai/diagnostic" class="nav-cta" style="background:#00FF41;color:#030a03!important;border:none;font-weight:700;" onclick="gtag('event','diagnostic_click',{event_category:'conversion',event_label:'nav_mfu',value:5000})">Diagnostic</a>
+    <a href="https://hire.nydux.ai" style="border:1px solid rgba(0,255,65,0.3);padding:7px 14px;color:#00FF41!important;">Hire</a>
   </div>
 </nav>
 
@@ -384,14 +406,15 @@ export NCCL_IB_GID_INDEX=3</pre>
         <p style="border-left:2px solid var(--green);padding-left:16px;margin:32px 0;color:var(--text-muted);line-height:1.9">Most AI teams have a systems problem, not a hardware problem. Every 10% of MFU you recover is six figures in annual savings on a production cluster. <a href="https://cal.com/sankarsathish/20-min-ai-infrastructure-intro" target="_blank" style="color:var(--green);border-bottom:1px solid rgba(0,255,65,0.3)">Let's look at your cluster together →</a></p>
 
         <!-- ARTICLE CTA -->
-        <div class="article-cta">
-          <h3>This is fixable — and measurable.</h3>
-          <p>If your cluster is showing these symptoms, the right move is to profile it together. I identify the exact bottleneck — NCCL, batch configuration, communication overhead — and fix it with documented results your team can maintain. Most clusters I work with recover $200K–$600K/year in efficiency within the first 30 days.</p>
-          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">GPU Cluster Health Check: $750 introductory rate · 3–5 day remote audit · written report with specific fixes.</p>
+        <div class="article-cta" style="background:rgba(255,68,68,0.06);border:1px solid rgba(255,68,68,0.25);border-left:3px solid #ff4444;">
+          <div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#ff4444;margin-bottom:12px;">// If your cluster behaves like this</div>
+          <h3 style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#ffffff;margin-bottom:12px;">If your cluster behaves like this, you are already losing money.</h3>
+          <p>A 7% MFU cluster running at $25K/month is spending <strong style="color:#ffffff;">$23,250/month on wasted compute</strong>. That's not a hardware problem. It's three configuration changes — and most teams never find them.</p>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">⚡ Only 2 diagnostic slots available this month.</p>
           <div class="cta-row">
-            <a href="https://cal.com/sankarsathish/20-min-ai-infrastructure-intro" class="btn-primary" target="_blank">Book 20-min diagnostic call</a>
-            <a href="https://hire.nydux.ai" class="btn-outline">See how I work →</a>
+            <a href="https://nydux.ai/diagnostic" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:#00FF41;color:#030a03;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;text-decoration:none;border:2px solid #00FF41;" onclick="diagnostic_click('mfu_article_cta')">→ Check Your Cluster (20-min diagnostic call)</a>
           </div>
+          <p style="font-size:11px;color:#4a6b4a;margin-top:14px;">Fixed: <span style="color:#00FF41;">$5,000</span> · First insight in 48h · Full report in 5 days · No commitment on first call</p>
         </div>
 
       </div>
@@ -401,10 +424,11 @@ export NCCL_IB_GID_INDEX=3</pre>
     <aside class="sidebar">
 
       <div class="sidebar-cta">
-        <div class="sc-eyebrow">// GPU Cluster Health Check</div>
+        <div class="sc-eyebrow">// GPU Cluster Diagnostic</div>
         <h3>Is your MFU below 40%?</h3>
-        <p>$750 introductory rate. 3–5 day remote audit. Written report with specific fixes. Typical outcome: 20–50% throughput improvement.</p>
-        <a href="https://cal.com/sankarsathish/20-min-ai-infrastructure-intro" target="_blank">→ Book diagnostic call</a>
+        <p>You're already losing money. Fixed price $5,000. First bottleneck identified in 48h. Full report in 5 days. No commitment on first call.</p>
+        <p style="font-size:11px;color:#4a6b4a;margin-bottom:12px;">⚡ 2 slots left this month.</p>
+        <a href="https://nydux.ai/diagnostic" onclick="diagnostic_click('mfu_sidebar')">→ Check Your Cluster</a>
       </div>
 
       <div class="sidebar-stats">
@@ -430,12 +454,43 @@ export NCCL_IB_GID_INDEX=3</pre>
   </div>
 </div>
 
-<footer>
-  <div class="footer-copy">// NYDUX Intelligence · Sankar Sathish · <a href="https://learn.nydux.ai" style="color:var(--green)">learn.nydux.ai</a></div>
-  <div class="footer-links">
-    <a href="https://learn.nydux.ai">All articles</a>
-    <a href="https://hire.nydux.ai">Work with Sankar</a>
-    <a href="https://linkedin.com/in/sankar-panneer-selvam-54820565" target="_blank">LinkedIn</a>
+<footer style="border-top:1px solid rgba(0,255,65,0.2);padding:48px 40px 32px;background:#030a03;position:relative;z-index:1;margin-top:80px;">
+  <div style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;flex-wrap:wrap;">
+    <div>
+      <div style="width:36px;height:36px;background:#00FF41;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;color:#030a03;font-size:20px;margin-bottom:12px;">N</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:#ffffff;margin-bottom:6px;">NYDUX</div>
+      <p style="font-size:12px;color:#4a6b4a;line-height:1.6;max-width:220px;">AI Infrastructure Intelligence. Most AI teams have a systems problem, not a hardware problem.</p>
+    </div>
+    <div>
+      <div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#00FF41;margin-bottom:16px;">Pages</div>
+      <ul style="list-style:none;">
+        <li style="margin-bottom:10px;"><a href="https://nydux.ai" style="color:#4a6b4a;text-decoration:none;font-size:13px;">Home</a></li>
+        <li style="margin-bottom:10px;"><a href="https://learn.nydux.ai" style="color:#4a6b4a;text-decoration:none;font-size:13px;">Intelligence Hub</a></li>
+        <li style="margin-bottom:10px;"><a href="https://nydux.ai/diagnostic" style="color:#4a6b4a;text-decoration:none;font-size:13px;">Diagnostic</a></li>
+        <li style="margin-bottom:10px;"><a href="https://hire.nydux.ai" style="color:#4a6b4a;text-decoration:none;font-size:13px;">Hire</a></li>
+      </ul>
+    </div>
+    <div>
+      <div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#00FF41;margin-bottom:16px;">Articles</div>
+      <ul style="list-style:none;">
+        <li style="margin-bottom:10px;"><a href="https://learn.nydux.ai/gcp-benchmark-mtu-cliff" style="color:#4a6b4a;text-decoration:none;font-size:13px;">GCP Benchmark</a></li>
+        <li style="margin-bottom:10px;"><a href="https://learn.nydux.ai/mfu-case-study" style="color:#00FF41;text-decoration:none;font-size:13px;">MFU Case Study</a></li>
+        <li style="margin-bottom:10px;"><a href="https://learn.nydux.ai/allreduce" style="color:#4a6b4a;text-decoration:none;font-size:13px;">AllReduce Deep Dive</a></li>
+      </ul>
+    </div>
+    <div>
+      <div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#00FF41;margin-bottom:16px;">Connect</div>
+      <ul style="list-style:none;">
+        <li style="margin-bottom:10px;"><a href="https://www.linkedin.com/in/sankar-panneer-selvam-54820565" target="_blank" rel="noopener" style="color:#4a6b4a;text-decoration:none;font-size:13px;">LinkedIn</a></li>
+        <li style="margin-bottom:10px;"><a href="https://github.com/sankarbaseone" target="_blank" rel="noopener" style="color:#4a6b4a;text-decoration:none;font-size:13px;">GitHub</a></li>
+        <li style="margin-bottom:10px;"><a href="https://x.com/nydux_ai" target="_blank" rel="noopener" style="color:#4a6b4a;text-decoration:none;font-size:13px;">X / Twitter</a></li>
+        <li style="margin-bottom:10px;"><a href="mailto:sankar@nydux.ai" style="color:#4a6b4a;text-decoration:none;font-size:13px;">sankar@nydux.ai</a></li>
+      </ul>
+    </div>
+  </div>
+  <div style="max-width:1100px;margin:32px auto 0;padding-top:24px;border-top:1px solid rgba(0,255,65,0.2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:11px;color:#4a6b4a;">
+    <span>© 2026 NYDUX Pvt Ltd · CIN: U63999TN2026PTC188887</span>
+    <span>sankar@nydux.ai · Chennai, Tamil Nadu, India</span>
   </div>
 </footer>
 
