@@ -1,0 +1,14 @@
+[[redirects]]
+  from = "/gcp-benchmark-mtu-cliff"
+  to = "/learn/gcp-benchmark-mtu-cliff/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/mfu-case-study"
+  to = "/learn/mfu-case-study/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/allreduce"
+  to = "/learn/allreduce/index.html"
+  status = 200 
