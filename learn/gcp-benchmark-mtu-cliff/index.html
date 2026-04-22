@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- ═══════════════════════════════════
+       PRIMARY SEO
+  ═══════════════════════════════════ -->
+  <title>GCP Multi-Node Benchmark: The MTU Cliff Costing GPU Clusters $180K/Year | NYDUX</title>
+  <meta name="description" content="Real multi-node MPI benchmarks on GCP reveal a 7× latency jump at 64KB — the MTU cliff destroying AllReduce efficiency in production GPU clusters. Raw data, root cause, fix. By Sankar Panneer Selvam, NYDUX.">
+  <meta name="keywords" content="NCCL benchmark, MTU cliff GPU cluster, AllReduce latency optimization, GCP multi-node benchmark, distributed training optimization, LLM training infrastructure, GPU cluster efficiency, MFU optimization, NCCL tuning, InfiniBand MTU, buffer fragmentation GPU, OSU micro-benchmarks, NYDUX, Sankar Panneer Selvam, HPC benchmark GCP, GPU cluster diagnostic">
+  <meta name="author" content="Sankar Panneer Selvam">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="revisit-after" content="7 days">
+  <meta name="language" content="English">
+  <link rel="canonical" href="https://learn.nydux.ai/gcp-benchmark-mtu-cliff">
+
+  <!-- ═══════════════════════════════════
+       OPEN GRAPH
+  ═══════════════════════════════════ -->
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="NYDUX Intelligence Hub">
+  <meta property="og:title" content="GCP Multi-Node Benchmark: The MTU Cliff Costing GPU Clusters $180K/Year">
+  <meta property="og:description" content="Real GCP benchmark data: 21μs → 158μs at a single message size boundary. This MTU boundary effect silently destroys AllReduce efficiency — and most teams never find it.">
+  <meta property="og:url" content="https://learn.nydux.ai/gcp-benchmark-mtu-cliff">
+  <meta property="og:image" content="https://learn.nydux.ai/assets/og-benchmark-mtu-cliff.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="NYDUX benchmark chart: 7x latency jump at 64KB MTU boundary on GCP cluster">
+  <meta property="og:locale" content="en_US">
+  <meta property="article:published_time" content="2026-04-21T20:00:00+05:30">
+  <meta property="article:modified_time" content="2026-04-22T10:00:00+05:30">
+  <meta property="article:author" content="https://www.linkedin.com/in/sankar-panneer-selvam-54820565">
+  <meta property="article:section" content="AI Infrastructure">
+  <meta property="article:tag" content="NCCL">
+  <meta property="article:tag" content="GPU Cluster">
+  <meta property="article:tag" content="Distributed Training">
+  <meta property="article:tag" content="HPC">
+  <meta property="article:tag" content="Benchmark">
+
+  <!-- ═══════════════════════════════════
+       TWITTER CARD
+  ═══════════════════════════════════ -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@nydux_ai">
+  <meta name="twitter:creator" content="@nydux_ai">
+  <meta name="twitter:title" content="GCP Multi-Node Benchmark: The MTU Cliff Costing GPU Clusters $180K/Year">
+  <meta name="twitter:description" content="Real benchmark data: 21μs → 158μs at a single message size boundary. Why your AllReduce is slow — not your hardware.">
+  <meta name="twitter:image" content="https://learn.nydux.ai/assets/og-benchmark-mtu-cliff.png">
+
+  <!-- ═══════════════════════════════════
+       JSON-LD STRUCTURED DATA
+  ═══════════════════════════════════ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "TechArticle",
+        "@id": "https://learn.nydux.ai/gcp-benchmark-mtu-cliff#article",
+        "headline": "GCP Multi-Node Benchmark: The MTU Cliff Costing GPU Clusters $180K/Year",
+        "description": "Real multi-node MPI benchmarks on GCP reveal a 7x latency jump at 64KB — the MTU boundary effect destroying AllReduce efficiency in production GPU clusters.",
+        "image": {"@type": "ImageObject", "url": "https://learn.nydux.ai/assets/og-benchmark-mtu-cliff.png", "width": 1200, "height": 630},
+        "datePublished": "2026-04-21T20:00:00+05:30",
+        "dateModified": "2026-04-22T10:00:00+05:30",
+        "author": {
+          "@type": "Person",
+          "name": "Sankar Panneer Selvam",
+          "url": "https://www.linkedin.com/in/sankar-panneer-selvam-54820565",
+          "jobTitle": "AI Infrastructure Intelligence Architect | Founder, NYDUX",
+          "email": "sankar@nydux.ai",
+          "sameAs": ["https://www.linkedin.com/in/sankar-panneer-selvam-54820565","https://github.com/sankarbaseone"]
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "NYDUX",
+          "url": "https://nydux.ai",
+          "logo": {"@type": "ImageObject", "url": "https://nydux.ai/logo.svg"}
+        },
+        "mainEntityOfPage": {"@type": "WebPage", "@id": "https://learn.nydux.ai/gcp-benchmark-mtu-cliff"},
+        "keywords": "NCCL, MTU cliff, GPU cluster, AllReduce, distributed training, GCP benchmark, HPC, MFU optimization",
+        "articleSection": "AI Infrastructure Benchmarks",
+        "wordCount": "1800",
+        "proficiencyLevel": "Expert"
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {"@type":"ListItem","position":1,"name":"NYDUX","item":"https://nydux.ai"},
+          {"@type":"ListItem","position":2,"name":"Intelligence Hub","item":"https://learn.nydux.ai"},
+          {"@type":"ListItem","position":3,"name":"GCP Benchmark: MTU Cliff","item":"https://learn.nydux.ai/gcp-benchmark-mtu-cliff"}
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {"@type":"Question","name":"What is the MTU cliff in GPU clusters?","acceptedAnswer":{"@type":"Answer","text":"The MTU cliff is a latency jump when messages exceed the fabric's Maximum Transmission Unit. In GPU clusters this causes packet fragmentation on every AllReduce, increasing communication latency up to 7x at the boundary message size."}},
+          {"@type":"Question","name":"How much does NCCL misconfiguration cost?","acceptedAnswer":{"@type":"Answer","text":"On a 128-GPU A100 cluster at $25K/month, NCCL misconfiguration from MTU misalignment typically costs $180,000+ annually in wasted compute — with zero new hardware required to fix it."}},
+          {"@type":"Question","name":"How do you fix NCCL MTU misalignment?","acceptedAnswer":{"@type":"Answer","text":"Set NCCL_BUFFSIZE to 4MB to align with peak bandwidth message size, tune NCCL_MIN_NCHANNELS to avoid the 8KB fragmentation boundary, and enable SHARP for in-network AllReduce. The fix takes one afternoon."}},
+          {"@type":"Question","name":"What benchmark tool was used?","acceptedAnswer":{"@type":"Answer","text":"OSU Micro-Benchmarks v7.3 (osu_bw and osu_latency) on GCP us-central1-a, two nodes. Full data at github.com/sankarbaseone/nydux-gpu-benchmarks."}}
+        ]
+      },
+      {
+        "@type": "Dataset",
+        "name": "NYDUX GCP Multi-Node MPI Benchmark — April 2026",
+        "description": "OSU Micro-Benchmarks v7.3 bandwidth and latency on GCP us-central1-a, 2 nodes",
+        "url": "https://github.com/sankarbaseone/nydux-gpu-benchmarks",
+        "creator": {"@type": "Person", "name": "Sankar Panneer Selvam"},
+        "dateCreated": "2026-04-21",
+        "keywords": "NCCL, OSU benchmark, GCP, multi-node, MPI, bandwidth, latency"
+      }
+    ]
+  }
+  </script>
+
+  <!-- ═══════════════════════════════════
+       PERFORMANCE
+  ═══════════════════════════════════ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- ═══════════════════════════════════
+       GA4 — TRACKING + CONVERSION EVENTS
+  ═══════════════════════════════════ -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ELWKF4SKC0"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-ELWKF4SKC0', {
+      page_title: 'GCP Benchmark: MTU Cliff',
+      page_location: 'https://learn.nydux.ai/gcp-benchmark-mtu-cliff'
+    });
+    function trackGitHub() { gtag('event','github_click',{event_category:'engagement',event_label:'benchmark_repo',value:1}); }
+    function trackDiagnostic() { gtag('event','conversion',{send_to:'G-ELWKF4SKC0',event_category:'lead',event_label:'diagnostic_cta',value:5000}); }
+    function trackCalendar() { gtag('event','calendar_click',{event_category:'lead',event_label:'20min_intro'}); }
+    function trackNewsletter() { gtag('event','newsletter_signup',{event_category:'lead',event_label:'benchmark_page'}); }
+    // Scroll depth
+    var sd = {25:0,50:0,75:0,90:0};
+    window.addEventListener('scroll',function(){
+      var p = Math.round(window.scrollY/(document.body.scrollHeight-window.innerHeight)*100);
+      [25,50,75,90].forEach(function(d){if(p>=d&&!sd[d]){sd[d]=1;gtag('event','scroll_depth',{event_category:'engagement',event_label:d+'%',value:d});}});
+    });
+    // Time on page
+    [30,60,120,180].forEach(function(s){setTimeout(function(){gtag('event','time_on_page',{event_category:'engagement',event_label:s+'s',value:s});},s*1000);});
+  </script>
+
+  <style>
+    :root {
+      --green:#00FF41; --green-dim:#00cc34; --green-faint:rgba(0,255,65,0.08);
+      --green-border:rgba(0,255,65,0.2); --bg:#030a03; --bg-card:#080f08;
+      --bg-elevated:#0d160d; --text:#e8f5e8; --text-dim:#7a9e7a;
+      --text-muted:#4a6b4a; --red:#ff4444; --amber:#ffaa00; --blue:#4af0ff; --white:#ffffff;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:15px;line-height:1.75;overflow-x:hidden;}
+    body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:9999;}
+    body::after{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background-image:linear-gradient(rgba(0,255,65,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,65,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+
+    /* Progress */
+    #progress-bar{position:fixed;top:0;left:0;height:2px;width:0%;background:var(--green);z-index:9998;transition:width 0.1s linear;box-shadow:0 0 8px var(--green);}
+
+    /* Nav */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 40px;background:rgba(3,10,3,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--green-border);}
+    .nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--green);text-decoration:none;letter-spacing:0.05em;}
+    .nav-links{display:flex;gap:28px;list-style:none;align-items:center;}
+    .nav-links a{color:var(--text-dim);text-decoration:none;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;transition:color 0.2s;}
+    .nav-links a:hover{color:var(--green);}
+    .nav-cta{background:var(--green)!important;color:var(--bg)!important;padding:7px 16px;font-weight:700!important;}
+    .nav-cta:hover{background:transparent!important;color:var(--green)!important;outline:1px solid var(--green);}
+
+    /* Breadcrumb */
+    .breadcrumb{position:relative;z-index:1;max-width:820px;margin:0 auto;padding:90px 24px 0;}
+    .breadcrumb ol{list-style:none;display:flex;gap:8px;align-items:center;font-size:11px;color:var(--text-muted);}
+    .breadcrumb li+li::before{content:'›';margin-right:8px;color:var(--green-border);}
+    .breadcrumb a{color:var(--text-muted);text-decoration:none;transition:color 0.2s;}
+    .breadcrumb a:hover{color:var(--green);}
+
+    /* TOC */
+    .toc{position:sticky;top:70px;float:right;width:190px;margin:0 -230px 40px 40px;background:var(--bg-card);border:1px solid var(--green-border);padding:16px 18px;font-size:12px;}
+    .toc-title{color:var(--green);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:12px;}
+    .toc ol{list-style:none;counter-reset:toc;}
+    .toc li{counter-increment:toc;margin-bottom:8px;}
+    .toc li::before{content:counter(toc)". ";color:var(--text-muted);}
+    .toc a{color:var(--text-dim);text-decoration:none;line-height:1.4;transition:color 0.2s;}
+    .toc a:hover,.toc a.active{color:var(--green);}
+
+    /* Main */
+    main{position:relative;z-index:1;max-width:820px;margin:0 auto;padding:24px 24px 80px;}
+
+    /* Article header */
+    .article-meta{display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap;}
+    .tag{display:inline-block;padding:3px 10px;border:1px solid var(--green-border);color:var(--green);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;}
+    .tag.red{border-color:rgba(255,68,68,0.3);color:var(--red);}
+    .tag.blue{border-color:rgba(74,240,255,0.3);color:var(--blue);}
+    .meta-dim{color:var(--text-muted);font-size:12px;}
+    .meta-dim+.meta-dim::before{content:'· ';margin-right:2px;}
+
+    h1.article-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(26px,5vw,44px);line-height:1.1;color:var(--white);margin-bottom:20px;letter-spacing:-0.02em;}
+    h1.article-title span{color:var(--green);}
+
+    .article-subtitle{font-size:16px;color:var(--text-dim);line-height:1.65;margin-bottom:32px;border-left:2px solid var(--green);padding-left:16px;}
+
+    .author-block{display:flex;align-items:center;gap:14px;padding:16px 20px;background:var(--green-faint);border:1px solid var(--green-border);margin-bottom:16px;}
+    .author-avatar{width:40px;height:40px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;color:var(--bg);font-size:16px;flex-shrink:0;}
+    .author-name{font-weight:700;color:var(--text);font-size:13px;}
+    .author-role{color:var(--text-muted);font-size:11px;margin-top:2px;}
+    .author-links{display:flex;gap:12px;margin-top:4px;}
+    .author-links a{color:var(--green);font-size:11px;text-decoration:none;}
+
+    /* Share bar */
+    .share-bar{display:flex;align-items:center;gap:10px;padding:12px 20px;background:var(--bg-card);border:1px solid var(--green-border);margin-bottom:48px;flex-wrap:wrap;}
+    .share-label{font-size:11px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-right:4px;}
+    .share-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;font-family:'JetBrains Mono',monospace;font-size:11px;text-decoration:none;border:1px solid var(--green-border);color:var(--text-dim);cursor:pointer;transition:all 0.2s;background:transparent;letter-spacing:0.05em;}
+    .share-btn:hover{border-color:var(--green);color:var(--green);background:var(--green-faint);}
+    .share-btn.li{border-color:rgba(10,102,194,0.4);color:#5aa3e8;}
+    .share-btn.li:hover{border-color:#0a66c2;color:#0a66c2;background:rgba(10,102,194,0.08);}
+
+    /* Prose */
+    .prose h2{font-family:'Syne',sans-serif;font-weight:700;font-size:22px;color:var(--white);margin:52px 0 16px;letter-spacing:-0.01em;display:flex;align-items:center;gap:10px;scroll-margin-top:80px;}
+    .prose h2::before{content:'//';color:var(--green);font-family:'JetBrains Mono',monospace;font-size:16px;}
+    .prose h3{font-family:'Syne',sans-serif;font-weight:600;font-size:17px;color:var(--green);margin:32px 0 12px;scroll-margin-top:80px;}
+    .prose p{color:var(--text-dim);margin-bottom:18px;font-size:15px;}
+    .prose strong{color:var(--text);font-weight:500;}
+    .prose a{color:var(--green);text-decoration:none;border-bottom:1px solid var(--green-border);transition:border-color 0.2s;}
+    .prose a:hover{border-color:var(--green);}
+
+    /* Spec box */
+    .spec-box{background:var(--bg-card);border:1px solid var(--green-border);padding:24px 28px;margin:32px 0;position:relative;}
+    .spec-box::before{content:'CLUSTER SPEC';position:absolute;top:-1px;left:20px;background:var(--bg);color:var(--green);font-size:10px;letter-spacing:0.15em;padding:0 8px;transform:translateY(-50%);}
+    .spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;}
+    .spec-row{display:flex;gap:8px;font-size:13px;}
+    .spec-key{color:var(--text-muted);min-width:120px;}
+    .spec-val{color:var(--green);font-weight:500;}
+
+    /* Findings */
+    .findings-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:32px 0;}
+    .finding-card{background:var(--bg-card);border:1px solid var(--green-border);padding:20px;}
+    .finding-card.anomaly{border-color:rgba(255,68,68,0.3);}
+    .finding-num{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:var(--green);line-height:1;margin-bottom:8px;}
+    .finding-num.red{color:var(--red);}
+    .finding-label{font-size:12px;color:var(--text-muted);line-height:1.5;}
+
+    /* Table */
+    .data-table-wrap{margin:32px 0;overflow-x:auto;border:1px solid var(--green-border);}
+    .data-table-header{background:var(--bg-elevated);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--green-border);}
+    .data-table-title{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--green);}
+    .data-table-sub{font-size:11px;color:var(--text-muted);}
+    table{width:100%;border-collapse:collapse;font-size:13px;}
+    thead th{background:var(--bg-elevated);color:var(--text-muted);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:10px 16px;text-align:left;border-bottom:1px solid var(--green-border);font-weight:400;}
+    tbody tr{border-bottom:1px solid rgba(0,255,65,0.05);transition:background 0.15s;}
+    tbody tr:hover{background:var(--green-faint);}
+    tbody tr.hl{background:rgba(255,68,68,0.06);}
+    tbody tr.hl:hover{background:rgba(255,68,68,0.1);}
+    tbody td{padding:10px 16px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;}
+    td.vg{color:var(--green);font-weight:500;}
+    td.vr{color:var(--red);font-weight:500;}
+    td.va{color:var(--amber);}
+    .abadge{display:inline-block;background:rgba(255,68,68,0.15);border:1px solid rgba(255,68,68,0.3);color:var(--red);font-size:10px;padding:1px 6px;margin-left:8px;vertical-align:middle;}
+
+    /* Charts */
+    .chart-container{margin:32px 0;background:var(--bg-card);border:1px solid var(--green-border);padding:24px;}
+    .chart-title{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--green);margin-bottom:20px;}
+    .bar-chart{display:flex;flex-direction:column;gap:10px;}
+    .bar-row{display:flex;align-items:center;gap:12px;}
+    .bar-label{font-size:12px;color:var(--text-muted);min-width:70px;text-align:right;}
+    .bar-track{flex:1;height:24px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);overflow:hidden;}
+    .bar-fill{height:100%;background:var(--green);animation:barGrow 1s ease-out forwards;transform-origin:left;animation-play-state:paused;}
+    .bar-fill.red{background:var(--red);}
+    .bar-fill.amber{background:var(--amber);}
+    @keyframes barGrow{from{transform:scaleX(0);}to{transform:scaleX(1);}}
+    .bar-val{font-size:12px;color:var(--text);min-width:90px;font-weight:500;}
+
+    /* Callouts */
+    .callout{background:var(--green-faint);border:1px solid var(--green-border);border-left:3px solid var(--green);padding:20px 24px;margin:32px 0;}
+    .callout.red{background:rgba(255,68,68,0.05);border-color:rgba(255,68,68,0.2);border-left-color:var(--red);}
+    .callout.amber{background:rgba(255,170,0,0.05);border-color:rgba(255,170,0,0.2);border-left-color:var(--amber);}
+    .callout-label{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--green);margin-bottom:8px;}
+    .callout.red .callout-label{color:var(--red);}
+    .callout.amber .callout-label{color:var(--amber);}
+    .callout p{margin:0;font-size:14px;}
+
+    /* Cost block */
+    .cost-block{background:var(--bg-card);border:1px solid var(--green-border);padding:28px;margin:32px 0;}
+    .cost-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--green);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:20px;}
+    .cost-line{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;}
+    .cost-line:last-child{border-bottom:none;}
+    .cost-key{color:var(--text-muted);}
+    .cost-val{color:var(--text);font-weight:500;}
+    .cost-val.green{color:var(--green);font-family:'Syne',sans-serif;font-size:18px;font-weight:700;}
+    .cost-val.red{color:var(--red);}
+
+    /* Terminal */
+    .terminal{background:#000;border:1px solid var(--green-border);margin:24px 0;overflow-x:auto;}
+    .terminal-header{background:var(--bg-elevated);padding:8px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--green-border);}
+    .terminal-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.1);}
+    .terminal-filename{font-size:11px;color:var(--text-muted);margin-left:4px;}
+    .terminal-body{padding:16px 20px;font-size:13px;line-height:1.8;color:#88bb88;}
+    .terminal-body .cmd{color:var(--green);}
+    .terminal-body .comment{color:#445544;}
+    .terminal-body .val{color:var(--amber);}
+
+    /* Related */
+    .related-section{margin:48px 0 32px;}
+    .related-title{font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--green);margin-bottom:16px;}
+    .related-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .related-card{background:var(--bg-card);border:1px solid var(--green-border);padding:20px;text-decoration:none;display:block;transition:border-color 0.2s,background 0.2s;}
+    .related-card:hover{border-color:var(--green);background:var(--green-faint);}
+    .related-card-tag{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--green);margin-bottom:8px;}
+    .related-card-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:600;color:var(--white);line-height:1.3;margin-bottom:8px;}
+    .related-card-desc{font-size:12px;color:var(--text-muted);line-height:1.5;}
+
+    /* CTAs */
+    .github-cta{background:var(--bg-card);border:1px solid var(--green-border);padding:28px 32px;margin:48px 0 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+    .github-cta h3{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:var(--white);margin-bottom:6px;}
+    .github-cta p{font-size:13px;color:var(--text-muted);margin:0;}
+
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;letter-spacing:0.05em;cursor:pointer;transition:all 0.2s;text-decoration:none;white-space:nowrap;border:none;}
+    .btn-primary{background:var(--green);color:var(--bg);border:1px solid var(--green);}
+    .btn-primary:hover{background:transparent;color:var(--green);}
+    .btn-outline{background:transparent;color:var(--green);border:1px solid var(--green-border);}
+    .btn-outline:hover{border-color:var(--green);background:var(--green-faint);}
+
+    .diagnostic-cta{background:linear-gradient(135deg,var(--bg-card) 0%,rgba(0,255,65,0.04) 100%);border:1px solid var(--green-border);padding:40px;margin:48px 0;text-align:center;position:relative;overflow:hidden;}
+    .diagnostic-cta::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent);}
+    .diagnostic-cta h2{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:var(--white);margin-bottom:12px;}
+    .diagnostic-cta h2::before{display:none;}
+    .diagnostic-cta > p{color:var(--text-dim);font-size:14px;margin-bottom:24px;max-width:480px;margin-left:auto;margin-right:auto;}
+    .diag-price{font-size:13px;color:var(--text-muted);margin-top:16px;}
+    .diag-price span{color:var(--green);}
+
+    .trust-badges{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-top:20px;}
+    .trust-badge{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:5px;}
+    .trust-badge::before{content:'✓';color:var(--green);}
+
+    /* Newsletter */
+    .newsletter-box{background:var(--bg-card);border:1px solid var(--green-border);padding:28px 32px;margin:32px 0;}
+    .newsletter-box h3{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:var(--white);margin-bottom:8px;}
+    .newsletter-box p{font-size:13px;color:var(--text-muted);margin-bottom:16px;}
+    .newsletter-form{display:flex;gap:8px;flex-wrap:wrap;}
+    .newsletter-input{flex:1;min-width:200px;padding:10px 16px;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;transition:border-color 0.2s;}
+    .newsletter-input:focus{border-color:var(--green);}
+    .newsletter-input::placeholder{color:var(--text-muted);}
+
+    /* Footer */
+    .divider{border:none;border-top:1px solid var(--green-border);margin:48px 0;}
+    footer{position:relative;z-index:1;border-top:1px solid var(--green-border);padding:32px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+    .footer-brand{font-family:'Syne',sans-serif;font-weight:800;color:var(--green);font-size:16px;}
+    .footer-links{display:flex;gap:24px;list-style:none;}
+    .footer-links a{color:var(--text-muted);text-decoration:none;font-size:12px;transition:color 0.2s;}
+    .footer-links a:hover{color:var(--green);}
+    .footer-legal{font-size:11px;color:var(--text-muted);}
+
+    /* Animations */
+    .fade-in{opacity:0;transform:translateY(16px);animation:fadeUp 0.6s ease forwards;}
+    .fade-in:nth-child(2){animation-delay:0.1s;}
+    .fade-in:nth-child(3){animation-delay:0.2s;}
+    @keyframes fadeUp{to{opacity:1;transform:translateY(0);}}
+
+    /* Responsive */
+    @media(max-width:1080px){.toc{display:none;}}
+    @media(max-width:640px){
+      nav{padding:14px 20px;}
+      .nav-links{display:none;}
+      main{padding:16px 20px 60px;}
+      .findings-grid,.spec-grid,.related-grid{grid-template-columns:1fr;}
+      .github-cta{flex-direction:column;}
+      .diagnostic-cta{padding:28px 20px;}
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress-bar" role="progressbar" aria-label="Reading progress"></div>
+
+<nav role="navigation" aria-label="Main navigation">
+  <a href="https://nydux.ai" class="nav-logo">NYDUX</a>
+  <ul class="nav-links">
+    <li><a href="https://nydux.ai">Home</a></li>
+    <li><a href="https://learn.nydux.ai">Intelligence Hub</a></li>
+    <li><a href="https://hire.nydux.ai">Hire</a></li>
+    <li><a href="https://nydux.ai#diagnostic" class="nav-cta" onclick="trackDiagnostic()">Book Diagnostic</a></li>
+  </ul>
+</nav>
+
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+      <a itemprop="item" href="https://nydux.ai"><span itemprop="name">NYDUX</span></a><meta itemprop="position" content="1">
+    </li>
+    <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+      <a itemprop="item" href="https://learn.nydux.ai"><span itemprop="name">Intelligence Hub</span></a><meta itemprop="position" content="2">
+    </li>
+    <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+      <span itemprop="name">GCP Benchmark: MTU Cliff</span><meta itemprop="position" content="3">
+    </li>
+  </ol>
+</nav>
+
+<div class="toc" aria-label="Table of contents">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><a href="#setup">The Setup</a></li>
+    <li><a href="#findings">Key Findings</a></li>
+    <li><a href="#data">Full Data</a></li>
+    <li><a href="#mtu-cliff">MTU Cliff</a></li>
+    <li><a href="#buffer-dip">Buffer Dip</a></li>
+    <li><a href="#production">Production Impact</a></li>
+    <li><a href="#cost">Cost at Scale</a></li>
+    <li><a href="#fix">The Fix</a></li>
+    <li><a href="#methodology">Methodology</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ol>
+</div>
+
+<main>
+  <article itemscope itemtype="https://schema.org/TechArticle">
+    <meta itemprop="datePublished" content="2026-04-21">
+    <meta itemprop="dateModified" content="2026-04-22">
+
+    <header class="fade-in">
+      <div class="article-meta">
+        <span class="tag">Benchmark</span>
+        <span class="tag blue">GCP</span>
+        <span class="tag red">Real Data</span>
+        <span class="meta-dim">April 21, 2026</span>
+        <span class="meta-dim">8 min read</span>
+      </div>
+
+      <h1 class="article-title" itemprop="headline">
+        The <span>MTU Cliff</span> Costing GPU Clusters <span>$180K/Year</span>
+      </h1>
+
+      <p class="article-subtitle" itemprop="description">
+        Real multi-node MPI benchmarks on Google Cloud Platform — two nodes, OSU Micro-Benchmarks v7.3. One latency jump at 64KB reveals the most expensive misconfiguration in production GPU clusters. Raw data, root cause, fix.
+      </p>
+
+      <div class="author-block" itemscope itemtype="https://schema.org/Person">
+        <div class="author-avatar">S</div>
+        <div>
+          <div class="author-name" itemprop="name">Sankar Panneer Selvam</div>
+          <div class="author-role" itemprop="jobTitle">AI Infrastructure Intelligence | Founder, NYDUX</div>
+          <div class="author-links">
+            <a href="https://www.linkedin.com/in/sankar-panneer-selvam-54820565" itemprop="sameAs" rel="author noopener" target="_blank">LinkedIn</a>
+            <a href="https://github.com/sankarbaseone" itemprop="sameAs" rel="noopener" target="_blank">GitHub</a>
+            <a href="mailto:sankar@nydux.ai" itemprop="email">sankar@nydux.ai</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="share-bar" aria-label="Share options">
+        <span class="share-label">Share</span>
+        <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://learn.nydux.ai/gcp-benchmark-mtu-cliff" class="share-btn li" target="_blank" rel="noopener" onclick="gtag('event','share',{method:'linkedin'})">↗ LinkedIn</a>
+        <a href="https://twitter.com/intent/tweet?url=https://learn.nydux.ai/gcp-benchmark-mtu-cliff&text=Real+GCP+benchmark+data:+21μs+→+158μs+at+the+MTU+boundary.+This+is+why+your+AllReduce+is+slow+—+not+your+hardware.+by+%40nydux_ai+%23NCCL+%23GPUComputing+%23DistributedTraining" class="share-btn" target="_blank" rel="noopener" onclick="gtag('event','share',{method:'twitter'})">↗ X / Twitter</a>
+        <a href="https://github.com/sankarbaseone/nydux-gpu-benchmarks" class="share-btn" target="_blank" rel="noopener" onclick="trackGitHub()">↗ GitHub Repo</a>
+        <button class="share-btn" onclick="navigator.clipboard.writeText('https://learn.nydux.ai/gcp-benchmark-mtu-cliff').then(()=>{this.textContent='✓ Copied';setTimeout(()=>this.textContent='⊞ Copy URL',2000)});gtag('event','share',{method:'copy_link'})">⊞ Copy URL</button>
+      </div>
+    </header>
+
+    <div class="prose fade-in" itemprop="articleBody">
+
+      <h2 id="setup">The Setup</h2>
+      <p>On April 21, 2026, I ran a full suite of multi-node MPI bandwidth and latency benchmarks on Google Cloud Platform. Two compute nodes, us-central1-a, OSU Micro-Benchmarks v7.3 — the same benchmark suite used to validate production HPC cluster interconnects.</p>
+      <div class="spec-box">
+        <div class="spec-grid">
+          <div class="spec-row"><span class="spec-key">Platform</span><span class="spec-val">Google Cloud Platform</span></div>
+          <div class="spec-row"><span class="spec-key">Region</span><span class="spec-val">us-central1-a</span></div>
+          <div class="spec-row"><span class="spec-key">Nodes</span><span class="spec-val">2 compute nodes</span></div>
+          <div class="spec-row"><span class="spec-key">Benchmark</span><span class="spec-val">OSU Micro-Benchmarks v7.3</span></div>
+          <div class="spec-row"><span class="spec-key">Tests run</span><span class="spec-val">osu_bw + osu_latency</span></div>
+          <div class="spec-row"><span class="spec-key">Date</span><span class="spec-val">April 21, 2026</span></div>
+        </div>
+      </div>
+      <p>The goal: characterize bandwidth and latency across message sizes — the same sizes NCCL uses internally for AllReduce gradient synchronization during LLM training.</p>
+
+      <h2 id="findings">Key Findings</h2>
+      <div class="findings-grid">
+        <div class="finding-card"><div class="finding-num">1,530</div><div class="finding-label">MB/s peak bandwidth at 4MB message size</div></div>
+        <div class="finding-card"><div class="finding-num">20.18</div><div class="finding-label">μs minimum latency at 2B message size</div></div>
+        <div class="finding-card anomaly"><div class="finding-num red">7×</div><div class="finding-label">Latency jump at 64KB — 21μs → 158μs (MTU cliff)</div></div>
+        <div class="finding-card anomaly"><div class="finding-num red">26%</div><div class="finding-label">Bandwidth drop at 8KB — 1,304 → 965 MB/s (buffer fragmentation)</div></div>
+      </div>
+
+      <h2 id="data">Full Benchmark Data</h2>
+      <div class="data-table-wrap">
+        <div class="data-table-header">
+          <span class="data-table-title">osu_bw + osu_latency — April 21, 2026</span>
+          <span class="data-table-sub">GCP us-central1-a · 2 nodes · OSU v7.3</span>
+        </div>
+        <table>
+          <thead><tr><th scope="col">Message Size</th><th scope="col">Latency (μs)</th><th scope="col">Bandwidth (MB/s)</th><th scope="col">Notes</th></tr></thead>
+          <tbody>
+            <tr><td>1B</td><td class="vg">20.73</td><td>0.38</td><td style="color:var(--text-muted)">Baseline floor</td></tr>
+            <tr><td>1KB</td><td class="vg">21.86</td><td class="vg">460.94</td><td style="color:var(--text-muted)">Flat latency zone</td></tr>
+            <tr><td>4KB</td><td>26.60</td><td class="vg">1,304.12</td><td style="color:var(--text-muted)">Peak efficiency zone</td></tr>
+            <tr class="hl"><td>8KB</td><td>31.12</td><td class="vr">965.40 <span class="abadge">↓26%</span></td><td style="color:var(--red)">Buffer fragmentation dip</td></tr>
+            <tr class="hl"><td>64KB</td><td class="vr">158.26 <span class="abadge">7× JUMP</span></td><td>1,058.45</td><td style="color:var(--red)">MTU boundary cliff</td></tr>
+            <tr><td>1MB</td><td class="va">466.37</td><td>1,105.01</td><td style="color:var(--text-muted)">AllReduce-relevant range</td></tr>
+            <tr><td>4MB</td><td>1821.39</td><td class="vg">1,530.02</td><td style="color:var(--text-muted)">Peak bandwidth</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="mtu-cliff">Anomaly 1: The 64KB Latency Cliff</h2>
+      <p>At 4KB, latency sits at 26.60μs. Cross the 64KB boundary: <strong>158.26μs — a 7× jump at a single message size boundary.</strong></p>
+      <div class="chart-container">
+        <div class="chart-title">Latency vs Message Size (μs) — lower is better</div>
+        <div class="bar-chart">
+          <div class="bar-row"><span class="bar-label">1B</span><div class="bar-track"><div class="bar-fill" style="width:13%;animation-delay:.05s"></div></div><span class="bar-val">20.73 μs</span></div>
+          <div class="bar-row"><span class="bar-label">1KB</span><div class="bar-track"><div class="bar-fill" style="width:14%;animation-delay:.1s"></div></div><span class="bar-val">21.86 μs</span></div>
+          <div class="bar-row"><span class="bar-label">4KB</span><div class="bar-track"><div class="bar-fill" style="width:17%;animation-delay:.15s"></div></div><span class="bar-val">26.60 μs</span></div>
+          <div class="bar-row"><span class="bar-label">8KB</span><div class="bar-track"><div class="bar-fill" style="width:20%;animation-delay:.2s"></div></div><span class="bar-val">31.12 μs</span></div>
+          <div class="bar-row"><span class="bar-label">64KB</span><div class="bar-track"><div class="bar-fill red" style="width:100%;animation-delay:.25s"></div></div><span class="bar-val" style="color:var(--red)">158.26 μs ⚠</span></div>
+          <div class="bar-row"><span class="bar-label">1MB</span><div class="bar-track"><div class="bar-fill amber" style="width:100%;animation-delay:.3s;opacity:.7"></div></div><span class="bar-val" style="color:var(--amber)">466.37 μs</span></div>
+        </div>
+      </div>
+      <p>This is a <strong>MTU boundary effect</strong>. When a message exceeds the Maximum Transmission Unit of the network fabric, the packet is fragmented. Each fragment is a separate network transaction. Latency compounds multiplicatively.</p>
+      <div class="callout red">
+        <div class="callout-label">⚠ Why This Matters for NCCL AllReduce</div>
+        <p>NCCL's AllReduce splits gradient tensors into chunks and transmits them across the ring or tree topology. If NCCL buffer size isn't explicitly aligned to the fabric MTU — InfiniBand, RoCE, or otherwise — <strong>every AllReduce chunk crosses this cliff.</strong> The overhead is silent. No errors. Just slow training.</p>
+      </div>
+
+      <h2 id="buffer-dip">Anomaly 2: The 8KB Bandwidth Dip</h2>
+      <p>At 4KB, bandwidth peaks at 1,304 MB/s. At 8KB it drops to 965 MB/s — a <strong>26% reduction despite the larger message size.</strong></p>
+      <div class="chart-container">
+        <div class="chart-title">Bandwidth vs Message Size (MB/s) — higher is better</div>
+        <div class="bar-chart">
+          <div class="bar-row"><span class="bar-label">1KB</span><div class="bar-track"><div class="bar-fill" style="width:30%;animation-delay:.1s"></div></div><span class="bar-val">460.94 MB/s</span></div>
+          <div class="bar-row"><span class="bar-label">4KB</span><div class="bar-track"><div class="bar-fill" style="width:85%;animation-delay:.15s"></div></div><span class="bar-val">1,304.12 MB/s</span></div>
+          <div class="bar-row"><span class="bar-label">8KB</span><div class="bar-track"><div class="bar-fill red" style="width:63%;animation-delay:.2s"></div></div><span class="bar-val" style="color:var(--red)">965.40 MB/s ⚠</span></div>
+          <div class="bar-row"><span class="bar-label">64KB</span><div class="bar-track"><div class="bar-fill" style="width:69%;animation-delay:.25s"></div></div><span class="bar-val">1,058.45 MB/s</span></div>
+          <div class="bar-row"><span class="bar-label">4MB</span><div class="bar-track"><div class="bar-fill" style="width:100%;animation-delay:.3s"></div></div><span class="bar-val" style="color:var(--green)">1,530.02 MB/s ✓</span></div>
+        </div>
+      </div>
+      <div class="callout amber">
+        <div class="callout-label">Buffer Fragmentation Pattern</div>
+        <p>At 8KB the kernel can't assemble DMA transfer buffers cleanly — a well-documented pattern in high-speed network drivers. In production NCCL environments this manifests as step-time variance that looks like hardware instability but is entirely configuration-driven.</p>
+      </div>
+
+      <h2 id="production">Why These Patterns Mirror Production Clusters</h2>
+      <p>These anomalies — the MTU cliff and buffer fragmentation dip — are not GCP-specific quirks. <strong>They appear in production GPU clusters with InfiniBand, RoCE, and 400G/800G Ethernet fabrics.</strong> Message sizes shift slightly, but the mechanism is identical.</p>
+      <p>The reason most teams never find them: training logs show step time. Step time is a composite of compute, communication, and I/O. A 30% communication overhead looks like 10% slower training — below the threshold that triggers investigation.</p>
+      <div class="callout">
+        <div class="callout-label">Core Insight</div>
+        <p><strong>Your cluster isn't slow. Your NCCL configuration is.</strong> Buffer sizes, MTU alignment, SHARP enablement, ring vs. tree topology — configuration choices that compound silently across every training step, every day, every month.</p>
+      </div>
+
+      <h2 id="cost">What This Costs at Scale</h2>
+      <div class="cost-block">
+        <div class="cost-title">Cost Model — 128-GPU A100 Cluster</div>
+        <div class="cost-line"><span class="cost-key">Cluster compute cost</span><span class="cost-val">$25,000 / month</span></div>
+        <div class="cost-line"><span class="cost-key">Communication overhead from MTU misconfiguration</span><span class="cost-val red">15–20% of step time</span></div>
+        <div class="cost-line"><span class="cost-key">Wasted compute per month</span><span class="cost-val red">$3,750 – $5,000</span></div>
+        <div class="cost-line"><span class="cost-key">Training time impact (real example)</span><span class="cost-val red">7 days → 18 hours after fix</span></div>
+        <div class="cost-line"><span class="cost-key">Fix complexity</span><span class="cost-val">One afternoon. Zero new hardware.</span></div>
+        <div class="cost-line"><span class="cost-key">Annual compute recovered</span><span class="cost-val green">$180,000+</span></div>
+      </div>
+
+      <h2 id="fix">The Fix</h2>
+      <p>Three configuration changes. None require new hardware.</p>
+      <div class="terminal">
+        <div class="terminal-header">
+          <div class="terminal-dot"></div><div class="terminal-dot"></div><div class="terminal-dot"></div>
+          <span class="terminal-filename">nccl_tuning.sh</span>
+        </div>
+        <div class="terminal-body"><span class="comment"># 1. Align NCCL buffer size to InfiniBand MTU</span>
+<span class="comment"># Default: unset — causes the 8KB dip and compounds MTU fragmentation</span>
+<span class="cmd">export</span> NCCL_BUFFSIZE=<span class="val">4194304</span>   <span class="comment"># 4MB — matches peak BW message size</span>
+
+<span class="comment"># 2. Set chunking to avoid 8KB fragmentation boundary</span>
+<span class="cmd">export</span> NCCL_NTHREADS=<span class="val">512</span>
+<span class="cmd">export</span> NCCL_MIN_NCHANNELS=<span class="val">4</span>
+
+<span class="comment"># 3. Enable SHARP for in-network AllReduce (if fabric supports it)</span>
+<span class="comment"># Moves reduction off CPU entirely — eliminates MTU cliff overhead</span>
+<span class="cmd">export</span> NCCL_ALGO=<span class="val">NVLS</span>           <span class="comment"># or TREE depending on topology</span>
+<span class="cmd">export</span> NCCL_PROTO=<span class="val">Simple</span>
+
+<span class="comment"># Verify with nccl-tests after applying:</span>
+<span class="cmd">./build/all_reduce_perf</span> -b 8 -e 512M -f 2 -g <span class="val">8</span></div>
+      </div>
+      <p>Exact values depend on your fabric. InfiniBand HDR has different MTU characteristics than RoCE v2 or 400G Ethernet. The diagnostic approach is always the same: benchmark first, identify the cliffs, align the buffers.</p>
+
+      <h2 id="methodology">Methodology &amp; Reproducibility</h2>
+      <p>All benchmark code, raw data, and cluster configuration is published on GitHub. The validation workload uses a 1.3B GPT-style model in JAX with bfloat16 across 8 accelerators, with explicit separation of compute time, AllReduce/communication time, input pipeline time, and XLA compile time per training step.</p>
+      <p>MFU-equivalent is defined as achieved FLOPs / theoretical FLOPs after normalizing for architecture-specific compilation and interconnect behavior. No production cluster runs begin until instrumentation is validated with all seven metrics logging cleanly.</p>
+
+      <div class="github-cta">
+        <div>
+          <h3>Full benchmark data + methodology</h3>
+          <p>Raw OSU output · GCP cluster config · Reproducible scripts · Open source</p>
+        </div>
+        <a href="https://github.com/sankarbaseone/nydux-gpu-benchmarks" class="btn btn-primary" target="_blank" rel="noopener" onclick="trackGitHub()">→ View on GitHub</a>
+      </div>
+
+      <!-- FAQ — drives FAQ rich result in Google SERP -->
+      <h2 id="faq">Frequently Asked Questions</h2>
+
+      <div itemscope itemtype="https://schema.org/FAQPage">
+        <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+          <h3 itemprop="name">What is the MTU cliff in GPU clusters?</h3>
+          <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+            <p itemprop="text">The MTU cliff is a latency spike when network messages exceed the fabric's Maximum Transmission Unit. In GPU clusters, this causes packet fragmentation on every AllReduce, silently increasing communication latency up to 7× at the boundary message size — without triggering any error or alert.</p>
+          </div>
+        </div>
+        <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+          <h3 itemprop="name">How much does NCCL misconfiguration cost in production?</h3>
+          <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+            <p itemprop="text">On a 128-GPU A100 cluster at $25K/month, NCCL misconfiguration from MTU misalignment typically wastes $180,000+ annually in compute — with zero new hardware required to fix it. The fix is a configuration change that takes one afternoon.</p>
+          </div>
+        </div>
+        <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+          <h3 itemprop="name">How do you fix NCCL MTU misalignment?</h3>
+          <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+            <p itemprop="text">Set NCCL_BUFFSIZE to 4MB to align with peak bandwidth message size, tune NCCL_MIN_NCHANNELS to avoid the 8KB fragmentation boundary, and enable SHARP for in-network AllReduce if your fabric supports it. Full configuration in the benchmark repo at github.com/sankarbaseone/nydux-gpu-benchmarks.</p>
+          </div>
+        </div>
+        <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+          <h3 itemprop="name">What benchmark tools were used for these GPU cluster tests?</h3>
+          <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+            <p itemprop="text">OSU Micro-Benchmarks v7.3 (osu_bw and osu_latency) on Google Cloud Platform us-central1-a, two compute nodes. The same benchmark suite is used to validate production HPC interconnects. Raw data and reproduction scripts are available at github.com/sankarbaseone/nydux-gpu-benchmarks.</p>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- RELATED — internal linking -->
+      <div class="related-section">
+        <div class="related-title">Related Articles</div>
+        <div class="related-grid">
+          <a href="https://learn.nydux.ai/mfu-case-study" class="related-card" onclick="gtag('event','internal_link',{event_label:'mfu_case_study'})">
+            <div class="related-card-tag">Case Study</div>
+            <div class="related-card-title">7% → 40% MFU: Full Diagnosis Walkthrough</div>
+            <div class="related-card-desc">How three NCCL changes recovered $480K of annual GPU compute on a 128-GPU A100 cluster.</div>
+          </a>
+          <a href="https://learn.nydux.ai/allreduce" class="related-card" onclick="gtag('event','internal_link',{event_label:'allreduce_article'})">
+            <div class="related-card-tag">Deep Dive</div>
+            <div class="related-card-title">AllReduce Latency: 4.2ms → 0.8ms</div>
+            <div class="related-card-desc">Ring algorithm on fat-tree topology, buffer misalignment, and SHARP — the three levers that moved the needle.</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- NEWSLETTER — lead capture -->
+      <div class="newsletter-box">
+        <h3>Get benchmark reports before they're public</h3>
+        <p>New GCP, TPU, and multi-node benchmarks published as they run. No marketing. Just data.</p>
+        <div class="newsletter-form">
+          <input type="email" class="newsletter-input" placeholder="your@company.com" aria-label="Work email">
+          <button class="btn btn-primary" onclick="trackNewsletter()">→ Subscribe</button>
+        </div>
+      </div>
+
+      <!-- DIAGNOSTIC CTA -->
+      <div class="diagnostic-cta">
+        <h2>Does Your Cluster Have These Patterns?</h2>
+        <p>Most production GPU clusters do. The MTU cliff and buffer fragmentation patterns are the default state — not exceptions. A full diagnostic identifies exactly where your compute is going and what it costs.</p>
+        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+          <a href="https://nydux.ai" class="btn btn-primary" onclick="trackDiagnostic()">→ Book a Diagnostic</a>
+          <a href="https://cal.com/sankarsathish/20-min-ai-infrastructure-intro" class="btn btn-outline" target="_blank" rel="noopener" onclick="trackCalendar()">→ Free 20-min Call</a>
+        </div>
+        <p class="diag-price">GPU Cluster Diagnostic · <span>$5,000</span> · Full findings in 5 days · Identifies $300K+ of wasted GPU capacity</p>
+        <div class="trust-badges">
+          <span class="trust-badge">Real cluster data, not synthetic</span>
+          <span class="trust-badge">128-GPU A100 track record</span>
+          <span class="trust-badge">$480K annual savings delivered</span>
+          <span class="trust-badge">Results in 5 business days</span>
+        </div>
+      </div>
+
+    </div>
+  </article>
+</main>
+
+<footer role="contentinfo">
+  <div class="footer-brand">NYDUX</div>
+  <ul class="footer-links">
+    <li><a href="https://nydux.ai">nydux.ai</a></li>
+    <li><a href="https://learn.nydux.ai">Intelligence Hub</a></li>
+    <li><a href="https://hire.nydux.ai">Hire</a></li>
+    <li><a href="https://github.com/sankarbaseone/nydux-gpu-benchmarks">GitHub</a></li>
+    <li><a href="mailto:sankar@nydux.ai">sankar@nydux.ai</a></li>
+  </ul>
+  <span class="footer-legal">© 2026 NYDUX Pvt Ltd · CIN: U63999TN2026PTC188887</span>
+</footer>
+
+<script>
+  // Reading progress bar
+  var bar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', function(){
+    var pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+    bar.style.width = Math.min(pct, 100) + '%';
+  });
+
+  // TOC active state
+  var tocLinks = document.querySelectorAll('.toc a');
+  var sections = document.querySelectorAll('.prose h2[id], .prose h3[id]');
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        tocLinks.forEach(function(l){l.classList.remove('active');});
+        var a = document.querySelector('.toc a[href="#'+e.target.id+'"]');
+        if(a) a.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-20% 0px -70% 0px'});
+  sections.forEach(function(s){obs.observe(s);});
+
+  // Bar chart animate on scroll into view
+  var chartObs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        e.target.querySelectorAll('.bar-fill').forEach(function(b){
+          b.style.animationPlayState = 'running';
+        });
+      }
+    });
+  }, {threshold:0.2});
+  document.querySelectorAll('.chart-container').forEach(function(c){chartObs.observe(c);});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Your AllReduce Is Costing You 8% Step Time — NYDUX Intelligence</title>
+<meta name="description" content="If your A100 cluster runs NCCL AllReduce above 2ms, you are losing 8–15% of every training step to idle GPU time. Here's the root cause and the fix.">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#00ff41;--green-dim:#00cc33;--gold:#c9a84c;
+  --black:#0a0a0a;--dark:#111111;--dark2:#141414;
+  --text:#e8e8e8;--text-muted:#666660;--text-dim:#444440;
+  --border:rgba(0,255,65,0.12);--border-dim:rgba(255,255,255,0.06);
+  --font-mono:'Courier New','Courier',monospace;
+  --font-serif:'Georgia','Times New Roman',serif;
+  --font-display:'Arial Black','Arial',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--text);font-family:var(--font-mono);font-size:15px;line-height:1.8;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,65,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,65,0.025) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:16px 48px;border-bottom:1px solid var(--border);background:rgba(10,10,10,0.95);backdrop-filter:blur(12px)}
+.nav-logo{font-size:12px;letter-spacing:.1em;color:var(--green)}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links a{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.nav-cta{padding:7px 18px;border:1px solid var(--green);color:var(--green)!important;font-size:11px;letter-spacing:.08em;text-transform:uppercase;transition:background .2s,color .2s!important}
+.nav-cta:hover{background:var(--green);color:var(--black)!important}
+
+/* LAYOUT */
+.page-wrap{max-width:1200px;margin:0 auto;padding:0 48px;position:relative;z-index:1}
+.article-layout{display:grid;grid-template-columns:1fr 320px;gap:64px;padding-top:120px}
+
+/* ARTICLE */
+.article-header{padding-bottom:40px;border-bottom:1px solid var(--border);margin-bottom:48px}
+.article-cluster{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);margin-bottom:16px}
+.article-cluster span{color:var(--text-muted);margin:0 8px}
+.article-title{font-family:var(--font-serif);font-size:clamp(28px,4vw,48px);font-weight:400;line-height:1.1;letter-spacing:-.02em;margin-bottom:20px}
+.article-title em{color:var(--green);font-style:italic}
+.article-meta{font-size:12px;color:var(--text-muted);display:flex;gap:24px;flex-wrap:wrap}
+.article-meta span{display:flex;align-items:center;gap:6px}
+
+/* BODY */
+.article-body{max-width:680px}
+.article-body p{margin-bottom:24px;color:var(--text-muted);line-height:1.9}
+.article-body p strong{color:var(--text)}
+.article-body h2{font-family:var(--font-serif);font-size:22px;font-weight:400;color:var(--text);margin:48px 0 16px;letter-spacing:-.01em}
+.article-body h3{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--green);margin:32px 0 12px}
+
+/* CALLOUT BOXES */
+.callout{border:1px solid var(--border);padding:24px 28px;margin:32px 0;background:var(--dark2)}
+.callout-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);margin-bottom:10px}
+.callout p,.callout li{font-size:14px;color:var(--text-muted);line-height:1.9}
+.callout ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.callout ul li{padding-left:18px;position:relative}
+.callout ul li::before{content:'→';position:absolute;left:0;color:var(--green);font-size:12px}
+
+/* COST BOX */
+.cost-box{border:1px solid rgba(201,168,76,.3);padding:28px;margin:32px 0;background:rgba(201,168,76,.04)}
+.cost-box .cost-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.cost-num{font-family:var(--font-serif);font-size:48px;color:var(--gold);line-height:1;margin-bottom:8px;letter-spacing:-.02em}
+.cost-desc{font-size:13px;color:var(--text-muted)}
+
+/* CODE BLOCK */
+.code-block{background:var(--dark2);border:1px solid var(--border-dim);padding:20px 24px;margin:24px 0;overflow-x:auto}
+.code-block pre{font-family:var(--font-mono);font-size:12px;color:#a8ff78;line-height:1.7;white-space:pre}
+.code-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}
+
+/* PROOF BLOCK */
+.proof-block{border:1px solid var(--border);padding:32px;margin:40px 0;background:var(--dark2)}
+.proof-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:20px}
+.proof-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-bottom:20px}
+.proof-metric .val{font-family:var(--font-serif);font-size:28px;color:var(--green);letter-spacing:-.02em;display:block;margin-bottom:4px}
+.proof-metric .lbl{font-size:11px;color:var(--text-muted);letter-spacing:.04em}
+.proof-context{font-size:13px;color:var(--text-muted);border-top:1px solid var(--border);padding-top:16px;line-height:1.8}
+
+/* ARTICLE CTA */
+.article-cta{border:1px solid var(--green);padding:32px;margin:48px 0;background:rgba(0,255,65,.03)}
+.article-cta h3{font-family:var(--font-serif);font-size:22px;font-weight:400;color:var(--text);margin-bottom:12px}
+.article-cta p{font-size:14px;color:var(--text-muted);margin-bottom:20px;line-height:1.8}
+.article-cta .cta-row{display:flex;gap:12px;flex-wrap:wrap}
+.btn-primary{display:inline-block;padding:12px 28px;background:var(--green);color:var(--black);font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;transition:background .2s}
+.btn-primary:hover{background:#33ff66}
+.btn-outline{display:inline-block;padding:12px 28px;border:1px solid var(--border);color:var(--text-muted);font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;transition:border-color .2s,color .2s}
+.btn-outline:hover{border-color:var(--green);color:var(--green)}
+
+/* SIDEBAR */
+.sidebar{position:sticky;top:100px;height:fit-content;display:flex;flex-direction:column;gap:24px}
+.sidebar-cta{border:1px solid var(--green);padding:24px;background:rgba(0,255,65,.03)}
+.sidebar-cta .sc-eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);margin-bottom:10px}
+.sidebar-cta h3{font-family:var(--font-serif);font-size:18px;font-weight:400;color:var(--text);margin-bottom:10px;line-height:1.3}
+.sidebar-cta p{font-size:12px;color:var(--text-muted);margin-bottom:16px;line-height:1.8}
+.sidebar-cta a{display:block;padding:10px 16px;background:var(--green);color:var(--black);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;text-align:center;transition:background .2s}
+.sidebar-cta a:hover{background:#33ff66}
+.sidebar-topics{border:1px solid var(--border-dim);padding:20px}
+.sidebar-topics h4{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px}
+.topic-link{display:block;font-size:12px;color:var(--text-muted);padding:8px 0;border-bottom:1px solid var(--border-dim);transition:color .2s}
+.topic-link:hover{color:var(--green)}
+.topic-link:last-child{border-bottom:none}
+.topic-link .cluster{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--green);display:block;margin-bottom:2px}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:32px 48px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;background:var(--black);position:relative;z-index:1;margin-top:80px}
+.footer-copy{font-size:11px;color:var(--text-muted);letter-spacing:.04em}
+.footer-links{display:flex;gap:20px}
+.footer-links a{font-size:11px;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase}
+.footer-links a:hover{color:var(--green)}
+
+@media(max-width:900px){
+  .article-layout{grid-template-columns:1fr;gap:40px;padding-top:100px}
+  .sidebar{position:static}
+  .page-wrap{padding:0 24px}
+  nav{padding:14px 20px}
+  .proof-metrics{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="https://learn.nydux.ai" class="nav-logo">// NYDUX INTELLIGENCE</a>
+  <div class="nav-links">
+    <a href="https://learn.nydux.ai">Articles</a>
+    <a href="https://learn.nydux.ai/#curriculum">Course</a>
+    <a href="https://hire.nydux.ai" class="nav-cta">Work with Sankar</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="article-layout">
+
+    <!-- ARTICLE -->
+    <article>
+      <div class="article-header">
+        <div class="article-cluster">NCCL &amp; Collectives <span>·</span> Distributed Training <span>·</span> 8 min read</div>
+        <h1 class="article-title">Why your AllReduce is costing you<br><em>8% step time</em></h1>
+        <div class="article-meta">
+          <span>Sankar Sathish · AI HPC Infrastructure Architect</span>
+          <span>April 2026</span>
+          <span>A100 · InfiniBand · NCCL</span>
+        </div>
+      </div>
+
+      <div class="article-body">
+
+        <!-- HOOK -->
+        <div class="cost-box">
+          <div class="cost-label">The cost you're not measuring</div>
+          <div class="cost-num">$340K</div>
+          <div class="cost-desc">Approximate annual cost of 8% step time loss on a 16-node A100 cluster running at $1.20/GPU-hour, 24/7. Most teams have no idea this number exists — let alone where it's going.</div>
+        </div>
+
+        <p>If your training cluster is running AllReduce above <strong>2ms on InfiniBand NDR</strong>, you are losing time on every single gradient synchronisation step. Not occasionally. Every step. Across every GPU. For the entire duration of your training run.</p>
+
+        <p>This is not a framework problem. It is not a model architecture problem. It is not solved by tuning batch size, learning rate, or gradient accumulation steps. It lives in the communication layer — and most teams never look there.</p>
+
+        <!-- SELF-DIAGNOSIS -->
+        <h2>Do you have this problem?</h2>
+        <p>Run this diagnostic before reading further. If you answer yes to two or more of these, you have an AllReduce configuration problem, not a hardware problem:</p>
+
+        <div class="callout">
+          <div class="callout-label">Symptoms — check your cluster now</div>
+          <ul>
+            <li>GPU utilization sits between 60–75% during distributed training — not above 80%</li>
+            <li>Step time variance exceeds 10% between runs with identical batch sizes</li>
+            <li>nccl-tests shows AllReduce above 2ms on a 16-node InfiniBand cluster</li>
+            <li>You've increased batch size but throughput (samples/sec) didn't improve proportionally</li>
+            <li>Nsight Systems shows idle GPU time between forward pass and backward pass</li>
+            <li>You are running NCCL without explicitly setting <strong>NCCL_IB_GID_INDEX</strong> or <strong>NCCL_SOCKET_IFNAME</strong></li>
+          </ul>
+        </div>
+
+        <p>If you have not run nccl-tests on your cluster in the last 30 days, you do not have a baseline. You cannot diagnose what you have not measured.</p>
+
+        <!-- ROOT CAUSE -->
+        <h2>Root cause: it is almost never the hardware</h2>
+        <p>The AllReduce operation synchronises gradients across all GPUs after each backward pass. On a 16-node A100 cluster with InfiniBand NDR 400Gbps, a correctly configured AllReduce on a 7B parameter model should complete in <strong>under 1ms</strong>. When I see 4ms, the cluster has the hardware to do better — it's just not using it correctly.</p>
+
+        <p>There are three places the problem almost always lives:</p>
+
+        <h3>1. NCCL is not using InfiniBand correctly</h3>
+        <p>By default, NCCL will attempt to auto-detect your network interface. On clusters with multiple NICs — which is most production HPC clusters — this auto-detection picks the wrong interface. It falls back to TCP over Ethernet instead of using GPUDirect RDMA over InfiniBand. The result: your 400Gbps InfiniBand fabric is idle while NCCL sends gradients through your 10Gbps management network.</p>
+
+        <div class="code-block">
+          <div class="code-label">Diagnosis — check what NCCL is actually using</div>
+          <pre>NCCL_DEBUG=INFO torchrun --nproc_per_node=8 your_script.py 2>&1 | grep -E "NET|IB|SOCKET"
+
+# You should see:
+# NCCL INFO NET/IB : Using [0]mlx5_0:1/IB
+# NOT:
+# NCCL INFO NET/Socket : Using [0]eth0</pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-label">Fix — force NCCL to use InfiniBand</div>
+          <pre>export NCCL_IB_DISABLE=0
+export NCCL_IB_GID_INDEX=3
+export NCCL_SOCKET_IFNAME=ib0
+export NCCL_IB_HCA=mlx5_0,mlx5_1  # match your HCA names
+export NCCL_NET_GDR_LEVEL=5        # enable GPUDirect RDMA</pre>
+        </div>
+
+        <h3>2. GPUDirect RDMA is disabled or misconfigured</h3>
+        <p>GPUDirect RDMA allows the GPU to communicate directly with the InfiniBand HCA without going through CPU or system memory. When it works, it removes 40–60% of the latency from each AllReduce operation. When it's misconfigured, NCCL silently falls back to a CPU-mediated path with no warning.</p>
+
+        <p>The most common misconfiguration: <strong>nvidia_peermem</strong> is not loaded on the host. This module enables GPU-to-NIC direct memory access. Without it, GPUDirect RDMA cannot function regardless of your NCCL environment variables.</p>
+
+        <div class="code-block">
+          <div class="code-label">Verify GPUDirect RDMA is operational</div>
+          <pre># Check the module is loaded
+lsmod | grep nvidia_peermem
+
+# Verify in NCCL logs — you should see:
+# NCCL INFO GDR enabled for peer access
+# NOT:
+# NCCL INFO GDR disabled (no peer access)</pre>
+        </div>
+
+        <h3>3. SHARP in-network aggregation is not enabled</h3>
+        <p>Modern InfiniBand switches support SHARP (Scalable Hierarchical Aggregation and Reduction Protocol) — in-network computing that offloads AllReduce computation to the switch fabric itself. On a 16-node cluster, SHARP can reduce AllReduce latency by 30–50% by performing gradient aggregation in the network rather than at the endpoints.</p>
+        <p>Most teams do not enable it. The switch supports it. The HCA supports it. NCCL supports it. Nobody turned it on.</p>
+
+        <p style="border-left:2px solid var(--green);padding-left:16px;margin:32px 0;color:var(--text-muted);line-height:1.9">If this looks like your cluster, you don't need more GPUs. You need to see what your system is actually doing — and that starts with a single nccl-tests run. <a href="https://cal.com/sankarsathish/20-min-ai-infrastructure-intro" target="_blank" style="color:var(--green);border-bottom:1px solid rgba(0,255,65,0.3)">Let's look at it together →</a></p>
+
+        <div class="code-block">
+          <div class="code-label">Enable SHARP for AllReduce</div>
+          <pre>export NCCL_ALGO=TREE         # use tree algorithm (required for SHARP)
+export NCCL_SHARP_ENABLE=1
+export SHARP_COLL_LOG_LEVEL=3  # verify SHARP is actually active</pre>
+        </div>
+
+        <!-- MEASUREMENT -->
+        <h2>How to measure the impact</h2>
+        <p>Before applying any fix, establish a baseline. Run nccl-tests with your actual message sizes — not the default. A 7B parameter model with BF16 gradients produces an AllReduce message of approximately <strong>14GB</strong>. Test at that size.</p>
+
+        <div class="code-block">
+          <div class="code-label">nccl-tests baseline — run this first</div>
+          <pre># Install nccl-tests
+git clone https://github.com/NVIDIA/nccl-tests
+cd nccl-tests && make MPI=1 CUDA_HOME=/usr/local/cuda
+
+# Run AllReduce test at production message size
+mpirun -np 128 --hostfile hostfile \
+  ./build/all_reduce_perf \
+  -b 14G -e 14G -f 2 -g 1 \
+  -w 5 -n 20
+
+# Key metrics to record:
+# - algbw (algorithmic bandwidth) — target: >300 GB/s
+# - busbw (bus bandwidth) — target: >200 GB/s  
+# - time (latency) — target: <2ms on 16-node NDR</pre>
+        </div>
+
+        <p>Run this before and after applying the NCCL environment variables above. On a properly configured cluster, I typically see <strong>algorithmic bandwidth increase from 40–80 GB/s to 280–350 GB/s</strong>. That translates directly to reduced step time.</p>
+
+        <!-- PROOF -->
+        <div class="proof-block">
+          <div class="proof-label">Production result — Capgemini 16-node A100 cluster · 13B-parameter LLM fine-tuning · 2025</div>
+          <div class="proof-metrics">
+            <div class="proof-metric"><span class="val">4.2→0.8ms</span><span class="lbl">AllReduce latency</span></div>
+            <div class="proof-metric"><span class="val">61→87%</span><span class="lbl">GPU utilization</span></div>
+            <div class="proof-metric"><span class="val">7d→18h</span><span class="lbl">Training time</span></div>
+            <div class="proof-metric"><span class="val">$480K</span><span class="lbl">Annual savings</span></div>
+          </div>
+          <div class="proof-context">
+            Every number above came from applying the three fixes described in this article — plus one additional change to the ring topology that I cover in the next article. The cluster hardware did not change. The model did not change. The batch size did not change. Only the communication configuration changed.
+          </div>
+        </div>
+
+        <!-- WHAT TO DO NEXT -->
+        <h2>What to do this week</h2>
+        <div class="callout">
+          <div class="callout-label">Action sequence</div>
+          <ul>
+            <li>Run nccl-tests at your production message size and record algbw and busbw</li>
+            <li>Check NCCL_DEBUG=INFO output — confirm InfiniBand is being used, not Ethernet</li>
+            <li>Verify nvidia_peermem is loaded on all host nodes</li>
+            <li>Apply the environment variable fixes above and re-run nccl-tests</li>
+            <li>If algbw is still below 200 GB/s after these fixes, the problem is deeper — likely in the ring topology or HCA binding. That requires profiling with Nsight Systems.</li>
+          </ul>
+        </div>
+
+        <p>The fixes above take <strong>under two hours</strong> to apply and verify. If your cluster is running AllReduce above 2ms today, there is no reason it should still be running above 2ms tomorrow.</p>
+
+        <p>If you run nccl-tests and algbw is already above 300 GB/s but your training utilization is still below 80%, the bottleneck has moved. It is no longer in AllReduce — it's in compute-communication overlap, or in memory bandwidth, or in kernel launch overhead. Those require Nsight Systems to diagnose. That's the next article.</p>
+
+        <p style="color:#e8e8e8;line-height:1.9">Every training run you execute with a misconfigured NCCL stack is wasting GPU time you are already paying for. On a 16-node cluster running 24/7, this is not a performance issue. <strong>It is a cost leak — and it compounds with every job you run.</strong></p>
+
+        <!-- ARTICLE CTA -->
+        <div class="article-cta">
+          <h3>This is fixable — and measurable.</h3>
+          <p>If your cluster is showing these symptoms, the right move is to look at your Nsight trace together. I profile, find the exact bottleneck, and fix it — documented so your team can maintain it. Most clusters I work with recover $200K–$600K/year in efficiency within the first 30 days.</p>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">I work with 3 teams at a time. One slot is currently open.</p>
+          <div class="cta-row">
+            <a href="https://cal.com/sankarsathish/20-min-ai-infrastructure-intro" class="btn-primary" target="_blank">Book 20-min diagnostic call</a>
+            <a href="https://hire.nydux.ai" class="btn-outline">See how I work →</a>
+          </div>
+        </div>
+
+      </div>
+    </article>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <div class="sidebar-cta">
+        <div class="sc-eyebrow">// Fractional CTO</div>
+        <h3>Is this your cluster?</h3>
+        <p>Let's look at the data together. I profile, diagnose, and fix GPU infrastructure problems for 3 teams at a time.</p>
+        <a href="https://cal.com/sankarsathish/20-min-ai-infrastructure-intro" target="_blank">→ Book 20 min</a>
+      </div>
+
+      <div class="sidebar-topics">
+        <h4>// More articles</h4>
+        <a href="#" class="topic-link"><span class="cluster">Profiling</span>How to root-cause a training bottleneck in 30 minutes</a>
+        <a href="#" class="topic-link"><span class="cluster">Distributed training</span>FSDP vs ZeRO-3: what the docs won't tell you</a>
+        <a href="#" class="topic-link"><span class="cluster">Economics</span>The $340K GPU utilization problem nobody measures</a>
+        <a href="#" class="topic-link"><span class="cluster">Inference</span>P99 latency is lying to you</a>
+        <a href="#" class="topic-link"><span class="cluster">Networking</span>GPUDirect RDMA and your AllReduce topology</a>
+      </div>
+
+    </aside>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-copy">// NYDUX Intelligence · Sankar Sathish · <a href="https://learn.nydux.ai" style="color:var(--green)">learn.nydux.ai</a></div>
+  <div class="footer-links">
+    <a href="https://learn.nydux.ai">All articles</a>
+    <a href="https://hire.nydux.ai">Work with Sankar</a>
+    <a href="https://linkedin.com/in/sankar-panneer-selvam-54820565" target="_blank">LinkedIn</a>
+  </div>
+</footer>
+
+</body>
+</html>
