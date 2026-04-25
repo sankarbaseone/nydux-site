@@ -277,7 +277,7 @@ footer{border-top:1px solid var(--border);padding:32px 48px;display:flex;justify
         <!-- ROOT CAUSES -->
         <h2>Root causes: three fixable configuration errors</h2>
 
-        <p>Three specific issues were responsible for the entire performance gap. None required hardware changes. All were configuration-level interventions. Of these, <strong>NCCL misconfiguration and AllReduce overhead</strong> accounted for the majority of lost time. Batch size amplified both.</p>
+        <p>Three specific issues were responsible for the entire performance gap. None required hardware changes. All were configuration-level interventions. Of these, <strong>NCCL misconfiguration and AllReduce overhead</strong> accounted for the majority of lost time. Batch size amplified both. We later confirmed the MTU boundary fragmentation pattern independently — <a href="https://learn.nydux.ai/gcp-benchmark-mtu-cliff" style="color:#00FF41;text-decoration:none;border-bottom:1px solid rgba(0,255,65,0.3);" onclick="gtag('event','internal_link',{event_label:'benchmark_from_mfu'})">real GCP benchmark data showing a 7× latency jump at 64KB</a>.</p>
 
         <div class="cause-list">
           <div class="cause-item">
@@ -443,11 +443,9 @@ export NCCL_IB_GID_INDEX=3</pre>
 
       <div class="sidebar-topics">
         <h4>// More articles</h4>
-        <a href="https://learn.nydux.ai/allreduce" class="topic-link"><span class="cluster">NCCL &amp; Collectives</span>Why your AllReduce is costing you 8% step time</a>
-        <a href="#" class="topic-link"><span class="cluster">Profiling</span>How to root-cause a training bottleneck in 30 minutes</a>
-        <a href="#" class="topic-link"><span class="cluster">Distributed Training</span>FSDP vs ZeRO-3: what the docs won't tell you</a>
-        <a href="#" class="topic-link"><span class="cluster">Economics</span>The $340K GPU utilisation problem nobody measures</a>
-        <a href="#" class="topic-link"><span class="cluster">Inference</span>P99 latency is lying to you</a>
+        <a href="https://learn.nydux.ai/allreduce" class="topic-link" onclick="gtag('event','internal_link',{event_label:'allreduce_from_mfu'})"><span class="cluster">NCCL &amp; Collectives</span>Why your AllReduce is costing you 8% step time</a>
+        <a href="https://learn.nydux.ai/gcp-benchmark-mtu-cliff" class="topic-link" onclick="gtag('event','internal_link',{event_label:'benchmark_from_mfu'})"><span class="cluster">Benchmark</span>GCP Multi-Node Benchmark: The MTU Cliff Costing Clusters $180K/Year</a>
+        <a href="https://nydux.ai/diagnostic" class="topic-link" onclick="diagnostic_click('mfu_sidebar_more')"><span class="cluster">Diagnostic</span>Is your cluster showing these patterns? Find your $300K+ loss</a>
       </div>
 
     </aside>
