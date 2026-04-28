@@ -12,7 +12,12 @@
   from = "/allreduce"
   to = "/allreduce/index.html"
   status = 200
-
+[[redirects]]
+  from = "/mfu-case-study"
+  to = "/mfu-case-study/"
+  status = 301
+  force = true
+  
 [[headers]]
   for = "/*"
   [headers.values]
