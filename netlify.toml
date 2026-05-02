@@ -13,11 +13,6 @@
   to = "/allreduce/index.html"
   status = 200
 
-[[redirects]]
-  from = "/diagnostic"
-  to = "/diagnostic/index.html"
-  status = 200
-
 [[headers]]
   for = "/*"
   [headers.values]
