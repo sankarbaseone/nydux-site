@@ -389,6 +389,9 @@
   }
 }
 </script>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the MTU cliff in GPU clusters?", "acceptedAnswer": {"@type": "Answer", "text": "The MTU cliff is a sudden 7x latency spike (21μs to 158μs) that occurs when NCCL messages cross the 64KB MTU boundary. This fragmentation is caused by misconfigured MTU settings and costs GPU clusters $120K-$180K annually in wasted compute."}}, {"@type": "Question", "name": "How do you fix the MTU cliff?", "acceptedAnswer": {"@type": "Answer", "text": "Set the network MTU to 9000 (jumbo frames) on all nodes and switches, and align NCCL buffer sizes to avoid the 64KB boundary. NYDUX identified and fixed this in a GCP benchmark reducing latency from 158μs to 21μs."}}, {"@type": "Question", "name": "How much does MTU misconfiguration cost?", "acceptedAnswer": {"@type": "Answer", "text": "On a 128-GPU A100 cluster running at $448/hour, MTU boundary fragmentation costs $120K-$180K annually in wasted compute time due to AllReduce communication overhead."}}]}
+</script>
 </head>
 <body>
 
