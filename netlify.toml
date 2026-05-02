@@ -1,4 +1,19 @@
 [[redirects]]
+  from = "/gulf"
+  to = "/gulf/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/diagnostic"
+  to = "/diagnostic/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/dc-readiness"
+  to = "/dc-readiness/index.html"
+  status = 200
+
+[[redirects]]
   from = "/gcp-benchmark-mtu-cliff"
   to = "/gcp-benchmark-mtu-cliff/index.html"
   status = 200
