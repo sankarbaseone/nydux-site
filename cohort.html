@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML Systems Mastery — NYDUX</title>
+<meta name="description" content="10 weeks. Real GCP GPU data. Real results. Learn to find where 30–60% of GPU compute is being wasted. By Sankar Panneer Selvam, NYDUX.">
+<meta property="og:title" content="ML Systems Mastery Cohort — NYDUX">
+<meta property="og:description" content="10 weeks. Real GPU data. No slides. No theory.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --g: #00FF41;
+  --g2: rgba(0,255,65,0.08);
+  --g3: rgba(0,255,65,0.15);
+  --g4: rgba(0,255,65,0.25);
+  --bg: #030303;
+  --bg2: #080808;
+  --bg3: #0e0e0e;
+  --bg4: #141414;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.1);
+  --text: #efefef;
+  --muted: #555;
+  --muted2: #888;
+  --red: #ff4444;
+  --amber: #ffb800;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  overflow-x: hidden;
+  cursor: crosshair;
+}
+
+/* GRID TEXTURE */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,255,65,0.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,65,0.012) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* NAV */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 16px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  background: rgba(3,3,3,0.92);
+  backdrop-filter: blur(12px);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logo-box {
+  width: 36px; height: 36px;
+  background: #000;
+  border: 1px solid rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  font-family: 'Arial Black', sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  color: #fff;
+  flex-shrink: 0;
+  border-radius: 3px;
+}
+
+.logo-dot {
+  position: absolute;
+  bottom: 3px; right: 3px;
+  width: 7px; height: 7px;
+  background: var(--g);
+  border-radius: 50%;
+}
+
+.nav-brand {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.06em;
+  font-family: 'DM Mono', monospace;
+}
+
+.nav-right {
+  font-size: 11px;
+  color: var(--muted2);
+  letter-spacing: 0.05em;
+}
+
+/* WRAPPER */
+.wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* HERO */
+.hero {
+  padding: 140px 0 80px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-label {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--g);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-label::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--g);
+}
+
+.hero h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(40px, 6vw, 72px);
+  line-height: 1.05;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.hero h1 em {
+  font-style: italic;
+  color: var(--g);
+}
+
+.hero-sub {
+  font-size: 15px;
+  color: var(--muted2);
+  line-height: 1.7;
+  max-width: 560px;
+  margin-top: 20px;
+  margin-bottom: 40px;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 48px;
+}
+
+.hero-stat-val {
+  font-family: 'DM Serif Display', serif;
+  font-size: 32px;
+  color: var(--g);
+  line-height: 1;
+}
+
+.hero-stat-label {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.hero-proof {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--g);
+  padding: 16px 20px;
+  font-size: 12px;
+  color: var(--muted2);
+  line-height: 1.8;
+  max-width: 600px;
+}
+
+.hero-proof strong { color: var(--g); font-weight: 400; }
+
+/* SECTION */
+section {
+  padding: 72px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-tag {
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-tag::before { content: '//'; color: var(--g); }
+
+/* PROBLEM */
+.problem-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  margin-top: 32px;
+}
+
+.problem-item {
+  background: var(--bg2);
+  padding: 24px;
+  border: 1px solid var(--border);
+  transition: border-color 0.2s;
+}
+
+.problem-item:hover { border-color: var(--g4); }
+
+.problem-icon {
+  font-size: 10px;
+  color: var(--red);
+  letter-spacing: 0.1em;
+  margin-bottom: 10px;
+}
+
+.problem-text {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.7;
+}
+
+.problem-text span { color: var(--g); }
+
+/* CURRICULUM */
+.curriculum {
+  margin-top: 32px;
+  display: grid;
+  gap: 2px;
+}
+
+.week-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 0;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+  cursor: default;
+}
+
+.week-row:hover {
+  border-color: var(--g4);
+  background: var(--g2);
+}
+
+.week-num {
+  background: var(--bg3);
+  border-right: 1px solid var(--border);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  writing-mode: horizontal-tb;
+}
+
+.week-num span { color: var(--g); font-size: 16px; font-family: 'DM Serif Display', serif; display: block; }
+
+.week-content {
+  padding: 16px 20px;
+}
+
+.week-title {
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.week-desc {
+  font-size: 11px;
+  color: var(--muted2);
+  line-height: 1.6;
+}
+
+/* RESULTS */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  margin-top: 32px;
+}
+
+.result-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 28px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.result-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--g);
+}
+
+.result-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 40px;
+  color: var(--g);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.result-label {
+  font-size: 11px;
+  color: var(--muted2);
+  line-height: 1.6;
+}
+
+/* COHORT CARDS */
+.cohort-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.cohort-card {
+  border: 1px solid var(--border2);
+  background: var(--bg2);
+  padding: 32px;
+  position: relative;
+  transition: border-color 0.2s;
+}
+
+.cohort-card:hover { border-color: var(--g4); }
+
+.cohort-card.featured {
+  border-color: var(--g);
+  background: var(--bg3);
+}
+
+.cohort-badge {
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border: 1px solid;
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.cohort-badge.founding { border-color: var(--amber); color: var(--amber); }
+.cohort-badge.validated { border-color: var(--g); color: var(--g); }
+
+.cohort-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.cohort-date {
+  font-size: 12px;
+  color: var(--muted2);
+  margin-bottom: 24px;
+}
+
+.cohort-price {
+  font-family: 'DM Serif Display', serif;
+  font-size: 48px;
+  color: var(--g);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.cohort-price-label {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  margin-bottom: 24px;
+}
+
+.cohort-features {
+  list-style: none;
+  margin-bottom: 28px;
+}
+
+.cohort-features li {
+  font-size: 12px;
+  color: var(--muted2);
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  line-height: 1.5;
+}
+
+.cohort-features li:last-child { border-bottom: none; }
+.cohort-features li::before { content: '→'; color: var(--g); flex-shrink: 0; }
+
+.cohort-seats {
+  font-size: 11px;
+  margin-bottom: 20px;
+}
+
+.seats-remaining { color: var(--red); }
+.seats-open { color: var(--amber); }
+
+.cta-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  text-align: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  border: 1px solid var(--g);
+  color: var(--bg);
+  background: var(--g);
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.cta-btn:hover {
+  background: transparent;
+  color: var(--g);
+}
+
+.cta-btn.ghost {
+  background: transparent;
+  color: var(--g);
+}
+
+.cta-btn.ghost:hover {
+  background: var(--g);
+  color: var(--bg);
+}
+
+/* FORMAT */
+.format-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  margin-top: 32px;
+}
+
+.format-item {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 24px 20px;
+  text-align: center;
+}
+
+.format-val {
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px;
+  color: var(--g);
+  margin-bottom: 6px;
+}
+
+.format-label {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* WHO */
+.who-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  margin-top: 32px;
+}
+
+.who-item {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 20px;
+  font-size: 12px;
+  color: var(--muted2);
+  line-height: 1.7;
+  display: flex;
+  gap: 12px;
+}
+
+.who-item::before {
+  content: '✓';
+  color: var(--g);
+  flex-shrink: 0;
+  font-size: 14px;
+}
+
+/* INSTRUCTOR */
+.instructor {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 32px;
+  align-items: start;
+  margin-top: 32px;
+}
+
+.instructor-avatar {
+  width: 80px;
+  height: 80px;
+  background: var(--bg3);
+  border: 1px solid var(--g4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Serif Display', serif;
+  font-size: 32px;
+  color: var(--g);
+  flex-shrink: 0;
+}
+
+.instructor-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 24px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.instructor-title {
+  font-size: 11px;
+  color: var(--g);
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+}
+
+.instructor-bio {
+  font-size: 12px;
+  color: var(--muted2);
+  line-height: 1.8;
+}
+
+.creds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.cred {
+  font-size: 10px;
+  padding: 4px 10px;
+  border: 1px solid var(--border2);
+  color: var(--muted2);
+  letter-spacing: 0.05em;
+}
+
+/* FAQ */
+.faq-item {
+  border-bottom: 1px solid var(--border);
+  padding: 20px 0;
+}
+
+.faq-q {
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.faq-q::before { content: 'Q.'; color: var(--g); flex-shrink: 0; }
+
+.faq-a {
+  font-size: 12px;
+  color: var(--muted2);
+  line-height: 1.8;
+  padding-left: 26px;
+}
+
+/* FINAL CTA */
+.final-cta {
+  padding: 80px 0;
+  text-align: center;
+}
+
+.final-cta h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(28px, 4vw, 48px);
+  color: var(--text);
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.final-cta h2 em { color: var(--g); font-style: italic; }
+
+.final-cta p {
+  font-size: 13px;
+  color: var(--muted2);
+  margin-bottom: 40px;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.7;
+}
+
+.final-btns {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.final-btns a {
+  padding: 14px 32px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  border: 1px solid var(--g);
+  transition: all 0.2s;
+}
+
+.final-btns a.primary {
+  background: var(--g);
+  color: #000;
+}
+
+.final-btns a.primary:hover {
+  background: transparent;
+  color: var(--g);
+}
+
+.final-btns a.secondary {
+  background: transparent;
+  color: var(--g);
+}
+
+.final-btns a.secondary:hover {
+  background: var(--g);
+  color: #000;
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 24px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+
+footer a { color: var(--g); text-decoration: none; }
+
+/* ANIMATIONS */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-label, .hero h1, .hero-sub, .hero-stats, .hero-proof {
+  animation: fadeUp 0.6s ease both;
+}
+
+.hero h1 { animation-delay: 0.1s; }
+.hero-sub { animation-delay: 0.2s; }
+.hero-stats { animation-delay: 0.3s; }
+.hero-proof { animation-delay: 0.4s; }
+
+/* BLINK */
+@keyframes blink { 50% { opacity: 0; } }
+.blink { animation: blink 1s step-end infinite; }
+
+/* MOBILE */
+@media (max-width: 640px) {
+  nav { padding: 14px 20px; }
+  .wrap { padding: 0 20px; }
+  .hero { padding: 100px 0 60px; }
+  .hero-stats { gap: 24px; flex-wrap: wrap; }
+  .problem-grid, .cohort-grid, .who-grid, .results-grid { grid-template-columns: 1fr; }
+  .format-grid { grid-template-columns: repeat(2, 1fr); }
+  .instructor { grid-template-columns: 1fr; }
+  footer { flex-direction: column; gap: 8px; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="https://nydux.ai" class="nav-logo">
+    <div class="logo-box">N<div class="logo-dot"></div></div>
+    <div>
+      <div class="nav-brand">NYDUX</div>
+      <div style="font-size:8px; color:var(--muted); letter-spacing:0.15em; text-transform:uppercase; margin-top:1px;">AI Infra Intelligence</div>
+    </div>
+  </a>
+  <div class="nav-right">AI INFRASTRUCTURE INTELLIGENCE<span class="blink">_</span></div>
+</nav>
+
+<!-- HERO -->
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-label">ML Systems Mastery</div>
+    <h1>Learn to find where<br><em>GPU compute</em><br>goes to die.</h1>
+    <p class="hero-sub">
+      10 weeks. Real data. No slides. No theory.<br>
+      You will run NCCL benchmarks on GCP GPU instances — scripts, profiling data, and access provided — recover MFU, debug AllReduce latency, and build a public benchmark portfolio on GitHub.
+    </p>
+
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-val">10</div>
+        <div class="hero-stat-label">Weeks</div>
+      </div>
+      <div>
+        <div class="hero-stat-val">90<span style="font-size:18px;">min</span></div>
+        <div class="hero-stat-label">Weekly live sessions</div>
+      </div>
+      <div>
+        <div class="hero-stat-val">7→40<span style="font-size:18px;">%</span></div>
+        <div class="hero-stat-label">MFU recovered — real result</div>
+      </div>
+      <div>
+        <div class="hero-stat-val">$300K</div>
+        <div class="hero-stat-label">Waste identified per cluster</div>
+      </div>
+    </div>
+
+    <div class="hero-proof">
+      <strong>Real result from a 128× A100 cluster:</strong><br>
+      MFU: 7% → 40% &nbsp;·&nbsp; AllReduce latency: 4.2ms → 0.8ms &nbsp;·&nbsp; $300K+ waste recovered<br>
+      The cluster was "running normally" the whole time.
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<div class="wrap">
+  <section>
+    <div class="section-tag">The Problem</div>
+    <p style="font-size:14px; color:var(--muted2); line-height:1.8; max-width:640px;">
+      Most GPU engineers are optimizing the wrong thing. They tune hyperparameters. They upgrade hardware. They never look at what's actually killing cluster efficiency.
+    </p>
+
+    <div class="problem-grid">
+      <div class="problem-item">
+        <div class="problem-icon">⚡ INVISIBLE</div>
+        <div class="problem-text">AllReduce consuming <span>55% of your training step</span> — not compute. Communication overhead. Silent.</div>
+      </div>
+      <div class="problem-item">
+        <div class="problem-icon">⚡ INVISIBLE</div>
+        <div class="problem-text">Your MFU is <span>7% — not 40%</span>. The difference is $300K+ in wasted H100 time annually.</div>
+      </div>
+      <div class="problem-item">
+        <div class="problem-icon">⚡ INVISIBLE</div>
+        <div class="problem-text">One MTU misconfiguration = <span>7× latency spike</span>. Running for months. Nobody noticed.</div>
+      </div>
+      <div class="problem-item">
+        <div class="problem-icon">⚡ INVISIBLE</div>
+        <div class="problem-text">Your NCCL ring is <span>fighting your physical topology</span> — every single training run. Silently degrading.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:24px; padding:20px; background:var(--bg3); border-left:2px solid var(--g); font-size:13px; color:var(--muted2); line-height:1.8;">
+      These aren't framework issues. They're systems problems.<br>
+      And most engineers are <strong style="color:var(--text);">never trained to see them.</strong>
+    </div>
+  </section>
+</div>
+
+<!-- RESULTS -->
+<div class="wrap">
+  <section>
+    <div class="section-tag">Proven Results</div>
+    <div class="results-grid">
+      <div class="result-card">
+        <div class="result-num">7→40%</div>
+        <div class="result-label">MFU recovery on a 128× A100 cluster after NCCL ring topology fix</div>
+      </div>
+      <div class="result-card">
+        <div class="result-num">4.2→0.8ms</div>
+        <div class="result-label">AllReduce latency reduction after MTU misconfiguration fix</div>
+      </div>
+      <div class="result-card">
+        <div class="result-num">$300K+</div>
+        <div class="result-label">Annual GPU waste identified and recovered in one 5-day diagnostic</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- CURRICULUM -->
+<div class="wrap">
+  <section>
+    <div class="section-tag">10-Week Curriculum</div>
+    <div class="curriculum">
+      <div class="week-row">
+        <div class="week-num"><span>1</span>Week</div>
+        <div class="week-content">
+          <div class="week-title">GPU Cluster Fundamentals</div>
+          <div class="week-desc">MFU, step-time breakdown, where compute actually goes. Why your dashboard lies.</div>
+        </div>
+      </div>
+      <div class="week-row">
+        <div class="week-num"><span>2</span>Week</div>
+        <div class="week-content">
+          <div class="week-title">NCCL Deep Dive</div>
+          <div class="week-desc">AllReduce algorithms, ring vs tree topology, InfiniBand vs RoCE. What breaks at scale.</div>
+        </div>
+      </div>
+      <div class="week-row">
+        <div class="week-num"><span>3</span>Week</div>
+        <div class="week-content">
+          <div class="week-title">Profiling Toolkit</div>
+          <div class="week-desc">nsys, nccl-tests, DCGM — finding real bottlenecks. Hands-on with real cluster data.</div>
+        </div>
+      </div>
+      <div class="week-row">
+        <div class="week-num"><span>4</span>Week</div>
+        <div class="week-content">
+          <div class="week-title">Communication Optimization</div>
+          <div class="week-desc">SHARP, GPUDirect RDMA, buffer tuning. Squeezing every MB/s out of your interconnect.</div>
+        </div>
+      </div>
+      <div class="week-row">
+        <div class="week-num"><span>5</span>Week</div>
+        <div class="week-content">
+          <div class="week-title">Memory Efficiency</div>
+          <div class="week-desc">Activation checkpointing, gradient accumulation, batch sizing for maximum throughput.</div>
+        </div>
+      </div>
+      <div class="week-row">
+        <div class="week-num"><span>6</span>Week</div>
+        <div class="week-content">
+          <div class="week-title">Parallelism Strategies</div>
+          <div class="week-desc">DP vs TP vs PP — real trade-offs at scale. When to use what and why.</div>
+        </div>
+      </div>
+      <div class="week-row">
+        <div class="week-num"><span>7</span>Week</div>
+        <div class="week-content">
+          <div class="week-title">Multi-Node Scaling</div>
+          <div class="week-desc">What breaks from 8 → 128 GPUs. The failure modes nobody talks about.</div>
+        </div>
+      </div>
+      <div class="week-row">
+        <div class="week-num"><span>8</span>Week</div>
+        <div class="week-content">
+          <div class="week-title">Real Cluster Case Study</div>
+          <div class="week-desc">7% → 40% MFU — full diagnosis walkthrough. Every decision, every tool, every fix.</div>
+        </div>
+      </div>
+      <div class="week-row">
+        <div class="week-num"><span>9</span>Week</div>
+        <div class="week-content">
+          <div class="week-title">Cost Optimization</div>
+          <div class="week-desc">Identifying $300K+ GPU waste, building the business case, presenting to leadership.</div>
+        </div>
+      </div>
+      <div class="week-row">
+        <div class="week-num"><span>10</span>Week</div>
+        <div class="week-content">
+          <div class="week-title">Capstone — Live Diagnosis</div>
+          <div class="week-desc">Bring your own cluster problem. Live diagnosis session. Public benchmark portfolio on GitHub.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FORMAT -->
+<div class="wrap">
+  <section>
+    <div class="section-tag">Format</div>
+    <div class="format-grid">
+      <div class="format-item">
+        <div class="format-val">90</div>
+        <div class="format-label">Minutes / session</div>
+      </div>
+      <div class="format-item">
+        <div class="format-val">Live</div>
+        <div class="format-label">Google Meet · recorded</div>
+      </div>
+      <div class="format-item">
+        <div class="format-val">Real</div>
+        <div class="format-label">Clusters + profiling tools</div>
+      </div>
+      <div class="format-item">
+        <div class="format-val">GitHub</div>
+        <div class="format-label">Public benchmark portfolio</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- WHO -->
+<div class="wrap">
+  <section>
+    <div class="section-tag">Who This Is For</div>
+    <div class="who-grid">
+      <div class="who-item">ML Engineers who want to move into AI Infrastructure — the highest-leverage, least-crowded engineering vertical right now</div>
+      <div class="who-item">GPU Engineers who are tired of guessing why training is slow and want to diagnose clusters systematically</div>
+      <div class="who-item">Infrastructure Engineers scaling from 8 → 128 GPUs and hitting walls nobody can explain</div>
+      <div class="who-item">Senior Engineers building AI infrastructure in the Gulf region — Saudi Arabia, UAE, India — where GPU spend is under scrutiny</div>
+    </div>
+
+    <div style="margin-top:24px; padding:20px; background:var(--bg3); border:1px solid var(--border2); font-size:12px; color:var(--muted); line-height:1.8;">
+      <strong style="color:var(--text);">This cohort is NOT for:</strong> Beginners who haven't trained a model. People looking for theory. Anyone expecting slides.
+    </div>
+  </section>
+</div>
+
+<!-- COHORT OPTIONS -->
+<div class="wrap">
+  <section>
+    <div class="section-tag">Choose Your Cohort</div>
+
+    <div class="cohort-grid">
+
+      <!-- COHORT 1 -->
+      <div class="cohort-card">
+        <div class="cohort-badge founding">Founding Cohort</div>
+        <div class="cohort-name">Cohort 1</div>
+        <div class="cohort-date">Starts Saturday May 10 · 10AM PST / 10:30PM IST</div>
+        <div class="cohort-price">$1,499</div>
+        <div class="cohort-price-label">/ seat · one-time</div>
+        <ul class="cohort-features">
+          <li>10-week live curriculum</li>
+          <li>Founding cohort pricing — locked in</li>
+          <li>NCCL benchmarks on GCP GPU instances — access provided</li>
+          <li>GitHub benchmark portfolio</li>
+          <li>Direct access to Sankar</li>
+        </ul>
+        <div class="cohort-seats">
+          <span class="seats-remaining">⚠ 1 seat remaining</span>
+        </div>
+        <a href="https://www.linkedin.com/in/sankar-panneer-selvam-54820565/" target="_blank" class="cta-btn ghost">DM "GPU" on LinkedIn →</a>
+      </div>
+
+      <!-- COHORT 2 -->
+      <div class="cohort-card featured">
+        <div class="cohort-badge validated">Validated · Now Enrolling</div>
+        <div class="cohort-name">Cohort 2</div>
+        <div class="cohort-date">Starts Saturday June 14 · 10AM PST / 10:30PM IST</div>
+        <div class="cohort-price">$1,999</div>
+        <div class="cohort-price-label">/ seat · one-time</div>
+        <ul class="cohort-features">
+          <li>10-week live curriculum</li>
+          <li>10 seats maximum — intimate cohort</li>
+          <li>NCCL benchmarks on GCP GPU instances — access provided</li>
+          <li>GitHub benchmark portfolio</li>
+          <li>Cohort 1 case study + proven results</li>
+          <li>Direct access to Sankar</li>
+        </ul>
+        <div class="cohort-seats">
+          <span class="seats-open">10 seats · Enrollment closes June 7</span>
+        </div>
+        <a href="https://www.linkedin.com/in/sankar-panneer-selvam-54820565/" target="_blank" class="cta-btn">DM "GPU2" on LinkedIn →</a>
+      </div>
+
+    </div>
+
+    <div style="margin-top:16px; text-align:center; font-size:11px; color:var(--muted);">
+      Not sure which cohort? DM on LinkedIn and we'll figure it out together.
+    </div>
+  </section>
+</div>
+
+<!-- INSTRUCTOR -->
+<div class="wrap">
+  <section>
+    <div class="section-tag">Your Instructor</div>
+    <div class="instructor">
+      <div class="instructor-avatar">S</div>
+      <div>
+        <div class="instructor-name">Sankar Panneer Selvam</div>
+        <div class="instructor-title">Founder, NYDUX · AI Infrastructure Intelligence</div>
+        <div class="instructor-bio">
+          14 years in enterprise distributed systems. 7 years specializing in GPU cluster engineering, HPC, and LLM training infrastructure. I've built and optimized GPU clusters at Capgemini, Ericsson, Ford Motor Company, Syntel, and HCL Technologies.<br><br>
+          I don't teach from textbooks. I teach from real cluster failures, real profiling data, and real $300K recoveries. Every week in this cohort comes from something I've actually debugged in production.
+        </div>
+        <div class="creds">
+          <div class="cred">NVIDIA DLI Certified</div>
+          <div class="cred">IIT Madras AI/ML</div>
+          <div class="cred">PyTorch DDP · FSDP · DeepSpeed ZeRO</div>
+          <div class="cred">NCCL · InfiniBand · TensorRT-LLM</div>
+          <div class="cred">14 Years Enterprise GPU</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FAQ -->
+<div class="wrap">
+  <section>
+    <div class="section-tag">FAQ</div>
+
+    <div class="faq-item">
+      <div class="faq-q">Do I need access to a GPU cluster?</div>
+      <div class="faq-a">No. I provide GCP GPU instance access, profiling scripts, real benchmark data, and step-time results from production diagnostics. You run the analysis on real infrastructure. If you have your own cluster access, even better — we'll use it in Week 10.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What if I miss a session?</div>
+      <div class="faq-a">Every session is recorded. You'll have full access. That said — the live diagnosis sessions in Weeks 8 and 10 are where the real learning happens. Try to make those.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What infrastructure do we use for hands-on benchmarking?</div>
+      <div class="faq-a">We use GCP Spot VM instances for live benchmarking — cost is covered within the cohort fee. You'll also work with real profiling data from production cluster diagnostics (128× A100, anonymized). The GitHub benchmark repo is public: github.com/sankarbaseone/nydux-gpu-benchmarks.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">I'm based in the Gulf / US / UK — does timing work?</div>
+      <div class="faq-a">Sessions are Saturdays at 10AM PST / 6PM Saudi / 6PM UK / 10:30PM IST. Gulf engineers: this is your Saturday evening. US engineers: Saturday morning. Works across all key markets.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What's the difference between Cohort 1 and Cohort 2?</div>
+      <div class="faq-a">Same 10-week curriculum. Cohort 1 is the founding cohort at $1,499 — one seat left. Cohort 2 is the validated cohort at $1,999 with Cohort 1 case study as live proof. Cohort 2 has 10 seats and closes June 7.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Why $1,999 for Cohort 2?</div>
+      <div class="faq-a">Cohort 1 was founding pricing. Cohort 2 is the validated product with a real case study. The skills you learn here let you identify $300K+ in GPU waste. $1,999 is the ROI in the first week.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How do I enroll?</div>
+      <div class="faq-a">DM "GPU" (Cohort 1) or "GPU2" (Cohort 2) on LinkedIn. I'll respond within 24 hours with the payment link and onboarding details.</div>
+    </div>
+  </section>
+</div>
+
+<!-- FINAL CTA -->
+<div class="wrap">
+  <div class="final-cta">
+    <h2>Stop guessing.<br>Start <em>diagnosing.</em></h2>
+    <p>10 weeks. Real GCP GPU data. The systems skills that separate GPU engineers from GPU infrastructure engineers.</p>
+    <div class="final-btns">
+      <a href="https://www.linkedin.com/in/sankar-panneer-selvam-54820565/" target="_blank" class="primary">DM "GPU2" — Cohort 2 →</a>
+      <a href="https://www.linkedin.com/in/sankar-panneer-selvam-54820565/" target="_blank" class="secondary">DM "GPU" — Cohort 1 (1 seat left)</a>
+    </div>
+    <div style="margin-top:24px; font-size:11px; color:var(--muted);">
+      Questions? DM on LinkedIn · <a href="https://nydux.ai" style="color:var(--g); text-decoration:none;">nydux.ai</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>© 2026 NYDUX Pvt Ltd · CIN: U63999TN2026PTC188887</div>
+  <div><a href="https://nydux.ai">nydux.ai</a> · Chennai, Tamil Nadu · India</div>
+</footer>
+
+</body>
+</html>
