@@ -1,2 +1,4 @@
 # NYDUX redirects
 # No SPA catch-all — real folders exist for all routes
+/diagnostic    /dc-readiness    301
+/gulf    /gulf/gulf.html    301

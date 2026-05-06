@@ -55,11 +55,21 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{
-  --green:#00FF41;--green-dim:rgba(0,255,65,0.1);--green-border:rgba(0,255,65,0.2);
-  --dark:#09090B;--dark2:#111113;--dark3:#18181B;
-  --text:#FAFAF9;--text-muted:#A1A1AA;--text-dim:#71717A;
-  --amber:#F59E0B;
+:root {
+  --green: #00FF41;
+  --green-dark: #00CC33;
+  --green-dim: rgba(0,255,65,0.12);
+  --dark: #09090B;
+  --dark2: #111113;
+  --dark3: #18181B;
+  --mid: #3F3F46;
+  --border: rgba(255,255,255,0.08);
+  --border-green: rgba(0,255,65,0.25);
+  --text: #FAFAF9;
+  --text-muted: #A1A1AA;
+  --text-dim: #71717A;
+  --amber: #F59E0B;
+  --amber-dim: rgba(245,158,11,0.12);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
@@ -147,7 +157,13 @@ footer{position:relative;z-index:1;background:var(--dark);border-top:0.5px solid
   <a href="https://nydux.ai" style="display:flex;align-items:center;text-decoration:none;">
     <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDQwMCAxMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPCEtLSBCbGFjayBzcXVhcmUgLS0+CiAgPHJlY3QgeD0iMCIgeT0iMTAiIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iOCIgZmlsbD0iIzAwMDAwMCIvPgogIDwhLS0gV2hpdGUgTiAtLT4KICA8dGV4dCB4PSI4IiB5PSI5MCIgZm9udC1mYW1pbHk9IkFyaWFsIEJsYWNrLCBBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSI4MiIgZmlsbD0iI2ZmZmZmZiI+TjwvdGV4dD4KICA8IS0tIEdyZWVuIGRvdCAtLT4KICA8Y2lyY2xlIGN4PSI4NCIgY3k9Ijk2IiByPSIxNCIgZmlsbD0iIzAwRkY0MSIvPgogIDwhLS0gTllEVVggdGV4dCAtLT4KICA8dGV4dCB4PSIxMTgiIHk9IjYyIiBmb250LWZhbWlseT0iQXJpYWwgQmxhY2ssIEFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iOTAwIiBmb250LXNpemU9IjQ4IiBmaWxsPSIjZmZmZmZmIiBsZXR0ZXItc3BhY2luZz0iMyI+TllEVVg8L3RleHQ+CiAgPCEtLSBUYWdsaW5lIC0tPgogIDx0ZXh0IHg9IjEyMCIgeT0iODgiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjQwMCIgZm9udC1zaXplPSIxNiIgZmlsbD0iI2ZmZmZmZiIgb3BhY2l0eT0iMC42IiBsZXR0ZXItc3BhY2luZz0iNSI+QUkgSU5GUkEgSU5URUxMSUdFTkNFPC90ZXh0Pgo8L3N2Zz4=" height="44" alt="NYDUX — AI Infra Intelligence">
   </a>
-  <a href="https://cal.com/sankarsathish/20-min-ai-infrastructure-intro" class="nav-cta" target="_blank" rel="noopener" onclick="dc_readiness_click('nav')">Book a call</a>
+  <ul style="display:flex;align-items:center;gap:24px;list-style:none;margin:0;padding:0;">
+    <li><a href="https://nydux.ai" style="color:#aaa;text-decoration:none;font-size:12px;letter-spacing:0.06em;">Home</a></li>
+    <li><a href="https://nydux.ai/gulf" style="color:#aaa;text-decoration:none;font-size:12px;letter-spacing:0.06em;">Gulf</a></li>
+    <li><a href="https://nydux.ai/dc-readiness" style="color:#aaa;text-decoration:none;font-size:12px;letter-spacing:0.06em;">DC Readiness</a></li>
+    <li><a href="https://nydux.ai/cohort" style="color:#00FF41;text-decoration:none;font-size:12px;letter-spacing:0.06em;font-weight:600;">Cohort</a></li>
+  </ul>
+    <a href="https://cal.com/sankarsathish/20-min-ai-infrastructure-intro" class="nav-cta" target="_blank" rel="noopener" onclick="dc_readiness_click('nav')">Book a call</a>
 </nav>
 
 <section class="hero">

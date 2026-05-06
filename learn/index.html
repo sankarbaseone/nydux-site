@@ -44,11 +44,26 @@
   <title>Intelligence Hub — AI Infrastructure Deep Dives | NYDUX</title>
                                   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-ELWKF4SKC0"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-ELWKF4SKC0',{page_title:'Intelligence Hub',page_location:'https://learn.nydux.ai'});</script>
   <style>
-    :root{--green:#00FF41;--green-dim:#00cc34;--green-faint:rgba(0,255,65,0.08);--green-border:rgba(0,255,65,0.2);--bg:#030a03;--bg-card:#080f08;--bg-elevated:#0d160d;--text:#e8f5e8;--text-dim:#7a9e7a;--text-muted:#4a6b4a;--red:#ff4444;--amber:#ffaa00;--blue:#4af0ff;--white:#ffffff;}
+    :root {
+  --green: #00FF41;
+  --green-dark: #00CC33;
+  --green-dim: rgba(0,255,65,0.12);
+  --dark: #09090B;
+  --dark2: #111113;
+  --dark3: #18181B;
+  --mid: #3F3F46;
+  --border: rgba(255,255,255,0.08);
+  --border-green: rgba(0,255,65,0.25);
+  --text: #FAFAF9;
+  --text-muted: #A1A1AA;
+  --text-dim: #71717A;
+  --amber: #F59E0B;
+  --amber-dim: rgba(245,158,11,0.12);
+}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     html{scroll-behavior:smooth;}
     body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:15px;line-height:1.75;overflow-x:hidden;}
@@ -58,7 +73,7 @@
     /* NAV */
     nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 40px;background:rgba(3,10,3,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--green-border);}
     .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
-    .nav-logo-mark{width:32px;height:32px;background:var(--green);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;color:var(--bg);font-size:18px;}
+    .nav-logo-mark{width:32px;height:32px;background:var(--green);display:flex;align-items:center;justify-content:center;font-family: 'Outfit', sans-serif;font-weight:800;color:var(--bg);font-size:18px;}
     .nav-logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--white);}
     .nav-logo-sub{font-size:10px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-top:1px;}
     .nav-links{display:flex;gap:28px;list-style:none;align-items:center;}
@@ -209,6 +224,7 @@
   <ul class="nav-links">
     <li><a href="https://nydux.ai">Home</a></li>
     <li><a href="https://learn.nydux.ai" class="active">Articles</a></li>
+    <li><a href="https://nydux.ai/cohort">Cohort</a></li>
     <li><a href="https://hire.nydux.ai">Hire</a></li>
     <li><a href="https://nydux.ai#diagnostic" class="nav-cta" onclick="gtag('event','nav_diagnostic_click')">Book Diagnostic</a></li>
   </ul>
