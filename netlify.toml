@@ -1,3 +1,4 @@
+@"
 [[redirects]]
   from = "/gulf"
   to = "/gulf/index.html"
@@ -14,18 +15,38 @@
   status = 200
 
 [[redirects]]
+  from = "/ai-factory"
+  to = "/ai-factory/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/learn/gcp-benchmark-mtu-cliff"
+  to = "/learn/gcp-benchmark-mtu-cliff/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/learn/mfu-case-study"
+  to = "/learn/mfu-case-study/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/learn/allreduce"
+  to = "/learn/allreduce/index.html"
+  status = 200
+
+[[redirects]]
   from = "/gcp-benchmark-mtu-cliff"
-  to = "/gcp-benchmark-mtu-cliff/index.html"
+  to = "/learn/gcp-benchmark-mtu-cliff/index.html"
   status = 200
 
 [[redirects]]
   from = "/mfu-case-study"
-  to = "/mfu-case-study/index.html"
+  to = "/learn/mfu-case-study/index.html"
   status = 200
 
 [[redirects]]
   from = "/allreduce"
-  to = "/allreduce/index.html"
+  to = "/learn/allreduce/index.html"
   status = 200
 
 [[headers]]
@@ -36,3 +57,4 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Cache-Control = "public, max-age=3600"
+"@ | Set-Content netlify.toml -Encoding UTF8
