@@ -1,13 +1,16 @@
+@"
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://nydux.ai/</loc><priority>1.0</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://nydux.ai/gulf</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://nydux.ai/dc-readiness</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://nydux.ai/cohort</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://nydux.ai/ai-factory</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://nydux.ai/hire</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
   <url><loc>https://nydux.ai/diagnostic</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://learn.nydux.ai/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://learn.nydux.ai/allreduce</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://learn.nydux.ai/gcp-benchmark-mtu-cliff</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://learn.nydux.ai/mfu-case-study</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://nydux.ai/learn</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://nydux.ai/learn/allreduce</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://nydux.ai/learn/gcp-benchmark-mtu-cliff</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://nydux.ai/learn/mfu-case-study</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
 </urlset>
+"@ | Set-Content sitemap.xml -Encoding UTF8
