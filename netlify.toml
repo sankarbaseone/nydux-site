@@ -15,8 +15,23 @@
   status = 200
 
 [[redirects]]
+  from = "/dc-readiness/"
+  to = "/dc-readiness/index.html"
+  status = 200
+
+[[redirects]]
   from = "/ai-factory"
   to = "/ai-factory/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/cohort"
+  to = "/cohort.html"
+  status = 200
+
+[[redirects]]
+  from = "/hire"
+  to = "/hire/index.html"
   status = 200
 
 [[redirects]]
